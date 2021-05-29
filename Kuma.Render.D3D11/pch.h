@@ -9,11 +9,5 @@
 
 // 여기에 미리 컴파일하려는 헤더 추가
 #include "framework.h"
-#include "KumaEngine2.h"
-#include <vector>
-#include <memory>
-#include <atomic>
-#include "helper.h"
-
 
 #endif //PCH_H

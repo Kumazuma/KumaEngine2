@@ -126,7 +126,7 @@ DECLARE_INTERFACE_IID_(IKumaEngine_Transform, IKumaEngine_Entity, "C1CADF76-5B42
 DEFINE_GUID(IID_RENDERER ,
 	0x874f3420, 0x2758, 0x4d38, 0xbb, 0x28, 0x1e, 0x76, 0xf2, 0x9c, 0x37, 0x65);
 
-DECLARE_INTERFACE_IID_(IRenderer, IKumaEngine_Entity, "874F3420-2758-4D38-BB28-1E76F29C3765")
+DECLARE_INTERFACE_IID_(IKumaEngine_Renderer, IKumaEngine_Entity, "874F3420-2758-4D38-BB28-1E76F29C3765")
 {
 	STDMETHOD(Update()) PURE;
 };
@@ -143,6 +143,7 @@ namespace KumaEngine
 {
 	namespace cpp
 	{
+		typedef ::IKumaEngine_Renderer IRenderer;
 		typedef ::IKumaEngine_EntityIterator IEntityIterator;
 		typedef ::IKumaEngine_WeakRef IWeakRef;
 		typedef ::IKumaEngine_Entity IEntity;

@@ -1,104 +1,106 @@
 #include "pch.h"
 #include "Layer.h"
-
-CommonLayer::CommonLayer()
+namespace KumaEngine::cpp
 {
-    weakRef_ = new CommonWeakRef{ this };
-    weakRef_->Release();
-}
-
-CommonLayer::~CommonLayer()
-{
-    weakRef_->Unlink();
-}
-
-STDMETHODIMP_(HRESULT __stdcall) CommonLayer::GetWeakRef(IWeakRef** ref)
-{
-    if (ref == nullptr)
+    CommonLayer::CommonLayer()
     {
-        return E_POINTER;
-    }
-    *ref = weakRef_.Get();
-    weakRef_->AddRef();
-    return S_OK;
-}
-
-STDMETHODIMP_(HRESULT __stdcall) CommonLayer::GetIterator(IEntityIterator** iterator)
-{
-    return E_NOTIMPL;
-}
-
-STDMETHODIMP_(HRESULT __stdcall) CommonLayer::AddObject(IGameObject* obj)
-{
-    if (obj == nullptr)
-    {
-        return E_POINTER;
-    }
-    objects.push_back(obj);
-    return S_OK;
-}
-
-STDMETHODIMP_(HRESULT __stdcall) CommonLayer::RemoveObject(IGameObject* obj)
-{
-    if (obj == nullptr)
-    {
-        return E_POINTER;
+        weakRef_ = new CommonWeakRef{ this };
+        weakRef_->Release();
     }
 
-    auto it = std::find(objects.begin(), objects.end(), obj);
-    if (it == objects.end())
+    CommonLayer::~CommonLayer()
     {
-        return E_INVALIDARG;
-    }
-    objects.erase(it);
-    return S_OK;
-}
-
-STDMETHODIMP_(HRESULT __stdcall) CommonLayer::Update()
-{
-    HRESULT hr = S_OK;
-    auto it = objects.begin();
-    auto const end = objects.end();
-    while (it != end)
-    {
-        auto& ptr = *it;
-        if (ptr->IsDestroyed())
-        {
-            it = objects.erase(it);
-        }
-        else if (FAILED(hr = ptr->Update()))
-        {
-            it = objects.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
+        weakRef_->Unlink();
     }
 
-    return S_OK;
-}
-
-STDMETHODIMP_(HRESULT __stdcall) CommonLayer::LateUpdate()
-{
-    HRESULT hr = S_OK;
-    auto it = objects.begin();
-    auto const end = objects.end();
-    while (it != end)
+    STDMETHODIMP_(HRESULT __stdcall) CommonLayer::GetWeakRef(IWeakRef** ref)
     {
-        auto& ptr = *it;
-        if (ptr->IsDestroyed())
+        if (ref == nullptr)
         {
-            it = objects.erase(it);
+            return E_POINTER;
         }
-        else if (FAILED(hr = ptr->LateUpdate()))
-        {
-            it = objects.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
+        *ref = weakRef_.Get();
+        weakRef_->AddRef();
+        return S_OK;
     }
-    return S_OK;
+
+    STDMETHODIMP_(HRESULT __stdcall) CommonLayer::GetIterator(IEntityIterator** iterator)
+    {
+        return E_NOTIMPL;
+    }
+
+    STDMETHODIMP_(HRESULT __stdcall) CommonLayer::AddObject(IGameObject* obj)
+    {
+        if (obj == nullptr)
+        {
+            return E_POINTER;
+        }
+        objects.push_back(obj);
+        return S_OK;
+    }
+
+    STDMETHODIMP_(HRESULT __stdcall) CommonLayer::RemoveObject(IGameObject* obj)
+    {
+        if (obj == nullptr)
+        {
+            return E_POINTER;
+        }
+
+        auto it = std::find_if(objects.begin(), objects.end(), [obj](ComPtr<IGameObject>& it) {return it.Get() == obj; });
+        if (it == objects.end())
+        {
+            return E_INVALIDARG;
+        }
+        objects.erase(it);
+        return S_OK;
+    }
+
+    STDMETHODIMP_(HRESULT __stdcall) CommonLayer::Update()
+    {
+        HRESULT hr = S_OK;
+        auto it = objects.begin();
+        auto const end = objects.end();
+        while (it != end)
+        {
+            auto& ptr = *it;
+            if (ptr->IsDestroyed())
+            {
+                it = objects.erase(it);
+            }
+            else if (FAILED(hr = ptr->Update()))
+            {
+                it = objects.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+
+        return S_OK;
+    }
+
+    STDMETHODIMP_(HRESULT __stdcall) CommonLayer::LateUpdate()
+    {
+        HRESULT hr = S_OK;
+        auto it = objects.begin();
+        auto const end = objects.end();
+        while (it != end)
+        {
+            auto& ptr = *it;
+            if (ptr->IsDestroyed())
+            {
+                it = objects.erase(it);
+            }
+            else if (FAILED(hr = ptr->LateUpdate()))
+            {
+                it = objects.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+        return S_OK;
+    }
 }

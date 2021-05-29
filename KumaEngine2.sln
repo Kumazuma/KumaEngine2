@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "include", "include", "{12BE4120-A62F-41BF-90AD-163BA9F8C391}"
 	ProjectSection(SolutionItems) = preProject
 		include\helper.h = include\helper.h
+		include\KumaEngine.Graphics.h = include\KumaEngine.Graphics.h
 		include\KumaEngine2.h = include\KumaEngine2.h
 	EndProjectSection
 EndProject

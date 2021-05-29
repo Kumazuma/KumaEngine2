@@ -37,13 +37,14 @@ DECLARE_INTERFACE_IID_(IKumaEngine_WeakRef, IUnknown, "73BFC47B-CE21-4D52-9996-4
 {
 	STDMETHOD(LockEntity(IKumaEngine_Entity** entity)) PURE;
 };
+
 // {06DA932D-20FC-4490-96ED-C65A59BE5DF6}
 DEFINE_GUID(IID_ENTITY_ITERATOR,
 	0x6da932d, 0x20fc, 0x4490, 0x96, 0xed, 0xc6, 0x5a, 0x59, 0xbe, 0x5d, 0xf6);
 
 DECLARE_INTERFACE_IID_(IKumaEngine_EntityIterator, IUnknown, "06DA932D-20FC-4490-96ED-C65A59BE5DF6")
 {
-	STDMETHOD(GetNext(IKumaEngine_Entity** entity)) PURE;
+	STDMETHOD(GetNext(void** entity)) PURE;
 };
 
 // {1DF1AB26-5BEB-47C0-99B2-5523882982FC}
@@ -65,7 +66,7 @@ DEFINE_GUID(IID_LAYER ,
 
 DECLARE_INTERFACE_IID_(IKumaEngine_Layer, IKumaEngine_Entity, "ABB60990-A5A7-4851-9B44-BBB7C3051078")
 {
-	STDMETHOD(GetIterator(IKumaEngine_EntityIterator** iterator)) PURE;
+	STDMETHOD(GetIterator(REFIID itemType, IKumaEngine_EntityIterator** iterator)) PURE;
 	STDMETHOD(AddObject(IKumaEngine_GameObject* obj)) PURE;
 	STDMETHOD(RemoveObject(IKumaEngine_GameObject * obj)) PURE;
 	STDMETHOD(Update()) PURE;
@@ -91,7 +92,7 @@ DEFINE_GUID(IID_GAMEOBJECT ,
 
 DECLARE_INTERFACE_IID_(IKumaEngine_GameObject, IKumaEngine_Entity, "3D0E0216-86F5-4BE4-BBE5-E53C928C79E4")
 {
-	STDMETHOD(GetComponent(REFIID guid, IKumaEngine_Component** component)) PURE;
+	STDMETHOD(GetComponent(REFIID guid, void** component)) PURE;
 	STDMETHOD(GetParent(IKumaEngine_WeakRef** parent)) PURE;
 	STDMETHOD(SetParent(IKumaEngine_WeakRef* parent)) PURE;
 	STDMETHOD(GetChildren(IKumaEngine_EntityIterator** iterator)) PURE;
@@ -162,7 +163,7 @@ DEFINE_GUID(IID_MESH_RENDERER,
 	0xdefaa1c4, 0x4ca3, 0x40f3, 0xb3, 0x54, 0xc2, 0xbd, 0x54, 0x86, 0xcf, 0xc6);
 DECLARE_INTERFACE_IID_(IKumaEngine_MeshRenderer, IKumaEngine_Component, "DEFAA1C4-4CA3-40F3-B354-C2BD5486CFC6")
 {
-	STDMETHOD(GetRenderModuleIID(IID * iid)) PURE;
+	STDMETHOD(GetRenderModule(IKumaEngine_RenderModule** ppModule)) PURE;
 	STDMETHOD(SetTexture(IKumaEngine_Surface * texture)) PURE;
 	STDMETHOD(SetMesh(IKumaEngine_Mesh* mesh)) PURE;
 };
@@ -172,7 +173,7 @@ DEFINE_GUID(IID_SURFACE,
 	0x602389ee, 0x64b8, 0x4c4e, 0x90, 0xd, 0xa2, 0xfc, 0xe9, 0x1b, 0x4a, 0x2b);
 DECLARE_INTERFACE_IID_(IKumaEngine_Surface, IKumaEngine_Entity, "22F61AF9-ABFD-4096-8D5E-B7BAB49F017E")
 {
-	STDMETHOD(GetRenderModuleIID(IID * iid)) PURE;
+	STDMETHOD(GetRenderModule(IKumaEngine_RenderModule** ppModule)) PURE;
 };
 
 // {22F61AF9-ABFD-4096-8D5E-B7BAB49F017E}
@@ -180,10 +181,15 @@ DEFINE_GUID(IID_CAMERA ,
 	0x22f61af9, 0xabfd, 0x4096, 0x8d, 0x5e, 0xb7, 0xba, 0xb4, 0x9f, 0x1, 0x7e);
 DECLARE_INTERFACE_IID_(IKumaEngine_Camera, IKumaEngine_Surface, "22F61AF9-ABFD-4096-8D5E-B7BAB49F017E")
 {
-	STDMETHOD(GetRenderModuleIID(IID * iid)) PURE;
 	STDMETHOD(AddLayer(IKumaEngine_Layer * layer)) PURE;
 	STDMETHOD(RemoveLayer(IKumaEngine_Layer * layer)) PURE;
+	STDMETHOD(GetIterator(REFIID itemType, IKumaEngine_EntityIterator * *iterator)) PURE;
+	STDMETHOD(SetNear(float value)) PURE;
+	STDMETHOD_(float, GetNear()) PURE;
+	STDMETHOD(SetFar(float value)) PURE;
+	STDMETHOD_(float, GetFar()) PURE;
 };
+
 
 namespace KumaEngine
 {

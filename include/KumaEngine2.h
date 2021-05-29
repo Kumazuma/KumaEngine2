@@ -10,8 +10,19 @@ interface IKumaEngine_Scene;
 interface IKumaEngine_Layer;
 interface IKumaEngine_GameEngine;
 interface IKumaEngine_Transform;
+interface IKumaEngine_MeshRenderer;
+interface IKumaEngine_Camera;
+interface IKumaEngine_Surface;
+interface IKumaEngine_Mesh;
 
-typedef struct _GameRenderDesc GameRenderDesc;
+
+typedef struct _GameRenderDesc
+{
+	uint16_t width;
+	uint16_t height;
+	bool fullscreen;
+} GameRenderDesc;
+
 // {93528159-3A3B-4590-AE8B-429217AC7F58}
 DEFINE_GUID(IID_ENTITY, 0x93528159, 0x3a3b, 0x4590, 0xae, 0x8b, 0x42, 0x92, 0x17, 0xac, 0x7f, 0x58);
 DECLARE_INTERFACE_IID_(IKumaEngine_Entity, IUnknown, "93528159-3A3B-4590-AE8B-429217AC7F58")
@@ -123,19 +134,57 @@ DECLARE_INTERFACE_IID_(IKumaEngine_Transform, IKumaEngine_Entity, "C1CADF76-5B42
 };
 
 // {874F3420-2758-4D38-BB28-1E76F29C3765}
-DEFINE_GUID(IID_RENDERER ,
+DEFINE_GUID(IID_RENDER_MODULE ,
 	0x874f3420, 0x2758, 0x4d38, 0xbb, 0x28, 0x1e, 0x76, 0xf2, 0x9c, 0x37, 0x65);
 
-DECLARE_INTERFACE_IID_(IKumaEngine_Renderer, IKumaEngine_Entity, "874F3420-2758-4D38-BB28-1E76F29C3765")
+DECLARE_INTERFACE_IID_(IKumaEngine_RenderModule, IKumaEngine_Entity, "874F3420-2758-4D38-BB28-1E76F29C3765")
 {
+	STDMETHOD(Initialize(HWND hWnd, const GameRenderDesc * desc)) PURE;
 	STDMETHOD(Update()) PURE;
+	STDMETHOD(CreateMeshRenderer(IKumaEngine_MeshRenderer** meshRenderer)) PURE;
+	STDMETHOD(CreateCamera(IKumaEngine_Camera** camera)) PURE;
+	STDMETHOD(LoadMeshFromFile(const wchar_t* meshId, const wchar_t* filePath)) PURE;
+	STDMETHOD(LoadMeshFromMemory(const wchar_t* meshId, const wchar_t* ext, const uint8_t* bytes, size_t byteLength)) PURE;
+	STDMETHOD(LoadTextureFromFile(const wchar_t* textureId, const wchar_t* filePath)) PURE;
+	STDMETHOD(LoadTextureFromMemory(const wchar_t* textureId, const wchar_t* ext, const uint8_t * bytes, size_t byteLength)) PURE;
+	STDMETHOD(GetMesh(IKumaEngine_Mesh** mesh)) PURE;
+	STDMETHOD(GetTexture(IKumaEngine_Surface** texture)) PURE;
+	STDMETHOD(SetMainCamera(IKumaEngine_Camera * camera)) PURE;
+
+#if defined(__cplusplus)
+	HRESULT Initialize(HWND hWnd, const GameRenderDesc& desc)
+	{
+		return Initialize(hWnd, &desc);
+	}
+#endif
 };
 
-struct _GameRenderDesc
+// {DEFAA1C4-4CA3-40F3-B354-C2BD5486CFC6}
+DEFINE_GUID(IID_MESH_RENDERER,
+	0xdefaa1c4, 0x4ca3, 0x40f3, 0xb3, 0x54, 0xc2, 0xbd, 0x54, 0x86, 0xcf, 0xc6);
+DECLARE_INTERFACE_IID_(IKumaEngine_MeshRenderer, IKumaEngine_Component, "DEFAA1C4-4CA3-40F3-B354-C2BD5486CFC6")
 {
-	uint16_t width;
-	uint16_t height;
-	bool fullscreen;
+	STDMETHOD(GetRenderModuleIID(IID * iid)) PURE;
+	STDMETHOD(SetTexture(IKumaEngine_Surface * texture)) PURE;
+	STDMETHOD(SetMesh(IKumaEngine_Mesh* mesh)) PURE;
+};
+
+// {602389EE-64B8-4C4E-900D-A2FCE91B4A2B}
+DEFINE_GUID(IID_SURFACE,
+	0x602389ee, 0x64b8, 0x4c4e, 0x90, 0xd, 0xa2, 0xfc, 0xe9, 0x1b, 0x4a, 0x2b);
+DECLARE_INTERFACE_IID_(IKumaEngine_Surface, IKumaEngine_Entity, "22F61AF9-ABFD-4096-8D5E-B7BAB49F017E")
+{
+	STDMETHOD(GetRenderModuleIID(IID * iid)) PURE;
+};
+
+// {22F61AF9-ABFD-4096-8D5E-B7BAB49F017E}
+DEFINE_GUID(IID_CAMERA ,
+	0x22f61af9, 0xabfd, 0x4096, 0x8d, 0x5e, 0xb7, 0xba, 0xb4, 0x9f, 0x1, 0x7e);
+DECLARE_INTERFACE_IID_(IKumaEngine_Camera, IKumaEngine_Surface, "22F61AF9-ABFD-4096-8D5E-B7BAB49F017E")
+{
+	STDMETHOD(GetRenderModuleIID(IID * iid)) PURE;
+	STDMETHOD(AddLayer(IKumaEngine_Layer * layer)) PURE;
+	STDMETHOD(RemoveLayer(IKumaEngine_Layer * layer)) PURE;
 };
 
 #if defined(__cplusplus)
@@ -143,7 +192,6 @@ namespace KumaEngine
 {
 	namespace cpp
 	{
-		typedef ::IKumaEngine_Renderer IRenderer;
 		typedef ::IKumaEngine_EntityIterator IEntityIterator;
 		typedef ::IKumaEngine_WeakRef IWeakRef;
 		typedef ::IKumaEngine_Entity IEntity;
@@ -153,6 +201,11 @@ namespace KumaEngine
 		typedef ::IKumaEngine_Layer ILayer;
 		typedef ::IKumaEngine_GameEngine IGameEngine;
 		typedef ::IKumaEngine_Transform ITransform;
+		typedef ::IKumaEngine_RenderModule IRenderModule;
+		typedef ::IKumaEngine_MeshRenderer IMeshRenderer;
+		typedef ::IKumaEngine_Camera ICamera;
+		typedef ::IKumaEngine_Surface ISurface;
+		typedef ::IKumaEngine_Mesh IMesh;
 	}
 };
 #endif

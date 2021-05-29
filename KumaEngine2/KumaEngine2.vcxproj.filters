@@ -30,14 +30,8 @@
     <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="KumaEngine2.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine.h">
       <Filter>GameEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="helper.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Layer.h">
       <Filter>Layer</Filter>

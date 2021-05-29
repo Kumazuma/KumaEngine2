@@ -109,34 +109,5 @@ namespace KumaEngine::cpp
 		return S_OK;
 	}
 
-	CommonWeakRef::CommonWeakRef(IEntity* entity) :
-		obj_{ entity }
-	{
-	}
 
-	STDMETHODIMP_(HRESULT __stdcall) CommonWeakRef::LockEntity(IEntity** entity)
-	{
-		if (entity == nullptr)
-		{
-			return E_POINTER;
-		}
-		IEntity* ref = obj_.load(std::memory_order::memory_order_acquire);
-		if (ref == nullptr)
-		{
-			return E_FAIL;
-		}
-
-		if (static_cast<LONG>(ref->AddRef()) <= 1)
-		{
-			return E_FAIL;
-		}
-		*entity = ref;
-
-		return S_OK;
-	}
-
-	void CommonWeakRef::Unlink()
-	{
-		obj_.store(nullptr, std::memory_order::memory_order_release);
-	}
 }

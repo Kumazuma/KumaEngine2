@@ -22,7 +22,7 @@ namespace KumaEngine::cpp
 
 	private:
 		ComPtr<IScene> currentScene_;
-		ComPtr<IRenderer> renderer_;
+		ComPtr<IRenderModule> renderModule_;
 		std::atomic<IScene*> nextScene_;
 		ComPtr<CommonWeakRef> weakRef_;
 	};

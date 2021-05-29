@@ -22,7 +22,7 @@ typedef struct _GameRenderDesc
 	uint16_t height;
 	bool fullscreen;
 } GameRenderDesc;
-
+#if defined(__cplusplus)
 // {93528159-3A3B-4590-AE8B-429217AC7F58}
 DEFINE_GUID(IID_ENTITY, 0x93528159, 0x3a3b, 0x4590, 0xae, 0x8b, 0x42, 0x92, 0x17, 0xac, 0x7f, 0x58);
 DECLARE_INTERFACE_IID_(IKumaEngine_Entity, IUnknown, "93528159-3A3B-4590-AE8B-429217AC7F58")
@@ -151,12 +151,10 @@ DECLARE_INTERFACE_IID_(IKumaEngine_RenderModule, IKumaEngine_Entity, "874F3420-2
 	STDMETHOD(GetTexture(IKumaEngine_Surface** texture)) PURE;
 	STDMETHOD(SetMainCamera(IKumaEngine_Camera * camera)) PURE;
 
-#if defined(__cplusplus)
 	HRESULT Initialize(HWND hWnd, const GameRenderDesc& desc)
 	{
 		return Initialize(hWnd, &desc);
 	}
-#endif
 };
 
 // {DEFAA1C4-4CA3-40F3-B354-C2BD5486CFC6}
@@ -187,7 +185,6 @@ DECLARE_INTERFACE_IID_(IKumaEngine_Camera, IKumaEngine_Surface, "22F61AF9-ABFD-4
 	STDMETHOD(RemoveLayer(IKumaEngine_Layer * layer)) PURE;
 };
 
-#if defined(__cplusplus)
 namespace KumaEngine
 {
 	namespace cpp
@@ -208,4 +205,22 @@ namespace KumaEngine
 		typedef ::IKumaEngine_Mesh IMesh;
 	}
 };
+#else
+typedef struct IKumaEngine_EntityVtbl
+{
+	BEGIN_INTERFACE
+		HRESULT(STDMETHODCALLTYPE* QueryInterface)(IKumaEngine_Entity* This, REFIID riid, void** ppvObject);
+		ULONG(STDMETHODCALLTYPE* AddRef)(IKumaEngine_Entity* This);
+		ULONG(STDMETHODCALLTYPE* Release)(IKumaEngine_Entity* This);
+		HRESULT(STDMETHODCALLTYPE* GetWeakRef)(IKumaEngine_Entity* This, IKumaEngine_WeakRef** ref);
+	END_INTERFACE
+} IKumaEngine_EntityVtbl;
+interface IKumaEngine_Entity
+{
+	CONST_VTBL struct IKumaEngine_EntityVtbl* lpVtbl;
+};
+
 #endif
+
+typedef HRESULT(__cdecl *lpfnCreateRenderModule)(IKumaEngine_RenderModule**);
+#define FN_CREATE_RENDER_MODULE_NAME "CreateRenderModule"

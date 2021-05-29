@@ -79,7 +79,7 @@ namespace KumaEngine::cpp
 	{
 		HRESULT hr = 0;
 		currentScene_ = initScene;
-		if (renderer_ == nullptr || currentScene_ == nullptr)
+		if (renderModule_ == nullptr || currentScene_ == nullptr)
 		{
 			return E_FAIL;
 		}
@@ -101,7 +101,7 @@ namespace KumaEngine::cpp
 			{
 				break;
 			}
-			if (FAILED(hr = renderer_->Update()))
+			if (FAILED(hr = renderModule_->Update()))
 			{
 				break;
 			}

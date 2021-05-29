@@ -24,6 +24,8 @@ namespace KumaEngine::cpp
 		IFACEMETHODIMP LoadTextureFromFile(const wchar_t* textureId, const wchar_t* filePath);
 		IFACEMETHODIMP LoadTextureFromMemory(const wchar_t* textureId, const wchar_t* ext, const uint8_t* bytes, size_t byteLength);
 		IFACEMETHODIMP SetMainCamera(ICamera* camera);
+		IFACEMETHODIMP GetMesh(IKumaEngine_Mesh** mesh);
+		IFACEMETHODIMP GetTexture(IKumaEngine_Surface** texture);
 	private:
 		void Process();
 	private:
@@ -33,8 +35,8 @@ namespace KumaEngine::cpp
 		ComPtr<ID3D11DeviceContext4> deviceContext_;
 		ComPtr<IDXGISwapChain3> swapChain_;
 		ComPtr<ICamera> mainCamera_;
-		ComPtr<ID3D11RenderTargetView> swapChainViews[SWAP_CHAIN_COUNT];
-		ComPtr<ID3D11Texture2D> swapChainTextures[SWAP_CHAIN_COUNT];
+		ComPtr<ID3D11RenderTargetView> swapChainView;
+		ComPtr<ID3D11Texture2D> swapChainTexture;
 		ComPtr<ID3D11Fence> fence_;
 		HANDLE hFenceEvent_;
 		UINT64 fenceValue_;

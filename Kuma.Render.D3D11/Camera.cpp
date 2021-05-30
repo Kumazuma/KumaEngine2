@@ -2,17 +2,17 @@
 #include "Camera.h"
 namespace KumaEngine::cpp
 {
-    STDMETHODIMP_(HRESULT __stdcall) Camera::GetWeakRef(IWeakRef** ref)
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::GetWeakRef(IWeakRef** ref)
     {
         return E_NOTIMPL;
     }
 
-    STDMETHODIMP_(HRESULT __stdcall) Camera::GetRenderModule(IRenderModule** ppModule)
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::GetRenderModule(IRenderModule** ppModule)
     {
         return E_NOTIMPL;
     }
 
-    STDMETHODIMP_(HRESULT __stdcall) Camera::AddLayer(ILayer* layer)
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::AddLayer(ILayer* layer)
     {
         if (layer == nullptr)
         {
@@ -28,7 +28,7 @@ namespace KumaEngine::cpp
         return E_INVALIDARG;
     }
 
-    STDMETHODIMP_(HRESULT __stdcall) Camera::RemoveLayer(ILayer* layer)
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::RemoveLayer(ILayer* layer)
     {
         if (layer == nullptr)
         {
@@ -44,32 +44,42 @@ namespace KumaEngine::cpp
         return E_INVALIDARG;
     }
 
-    STDMETHODIMP_(HRESULT __stdcall) Camera::GetLayers(IKumaEngine_EntityIterator** iterator)
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::GetLayers(IKumaEngine_EntityIterator** iterator)
     {
         return E_NOTIMPL;
     }
 
-    STDMETHODIMP_(HRESULT __stdcall) Camera::SetNear(float value)
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::SetNear(float value)
     {
         return E_NOTIMPL;
     }
 
-    STDMETHODIMP_(float __stdcall) Camera::GetNear()
+    STDMETHODIMP_(float __stdcall) CameraImpl::GetNear()
     {
         return 0.0f;
     }
 
-    STDMETHODIMP_(HRESULT __stdcall) Camera::SetFar(float value)
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::SetFar(float value)
     {
         return E_NOTIMPL;
     }
 
-    STDMETHODIMP_(float __stdcall) Camera::GetFar()
+    STDMETHODIMP_(float __stdcall) CameraImpl::GetFar()
     {
         return 0.0f;
     }
 
-    auto Camera::GetLayers() -> std::unordered_map<ILayer*, ComPtr<ILayer>>&
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::UpdateAndSwap()
+    {
+        return E_NOTIMPL;
+    }
+
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::Render(ID3D11DeviceContext4* deviceContext)
+    {
+        return E_NOTIMPL;
+    }
+
+    auto CameraImpl::GetLayers() -> std::unordered_map<ILayer*, ComPtr<ILayer>>&
     {
         return layers_;
     }

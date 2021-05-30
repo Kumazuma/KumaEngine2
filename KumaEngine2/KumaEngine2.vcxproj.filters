@@ -36,6 +36,15 @@
     <ClInclude Include="Layer.h">
       <Filter>Layer</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\helper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\KumaEngine.Graphics.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\KumaEngine2.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

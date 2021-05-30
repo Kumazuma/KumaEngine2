@@ -76,6 +76,41 @@ public:
 	}
 	LONG refCount;
 };
+
+template<typename T, typename ...BaseType>
+class RefCountImpl2 : public T
+{
+public:
+	template<typename ...Arg>
+	RefCountImpl2(Arg&& ...args) :
+		T{ std::forward<Arg>(args)... }
+	{
+		refCount = 1;
+	}
+
+	STDMETHOD(QueryInterface(REFIID riid,/* [iid_is][out] */ _COM_Outptr_ void __RPC_FAR* __RPC_FAR* ppvObject))
+	{
+		return DoQueryInterfaceHelper<T, BaseType...>::DoQueryInterface(this, riid, ppvObject);
+	}
+
+	STDMETHOD_(ULONG, AddRef())
+	{
+		return InterlockedIncrement(&refCount);
+
+	}
+
+	STDMETHOD_(ULONG, Release())
+	{
+		ULONG r = InterlockedDecrement(&refCount);
+		if (r == 0)
+		{
+			delete this;
+		}
+		return r;
+	}
+	LONG refCount;
+};
+
 namespace KumaEngine::cpp
 {
 	class CommonWeakRef : public RefCountImpl <IWeakRef, IUnknown>

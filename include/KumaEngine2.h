@@ -150,6 +150,11 @@ DECLARE_INTERFACE_IID_(IKumaEngine_RenderModule, IKumaEngine_Entity, "874F3420-2
 	STDMETHOD(LoadTextureFromMemory(const wchar_t* textureId, const wchar_t* ext, const uint8_t * bytes, size_t byteLength)) PURE;
 	STDMETHOD(GetMesh(IKumaEngine_Mesh** mesh)) PURE;
 	STDMETHOD(GetTexture(IKumaEngine_Surface** texture)) PURE;
+	/// <summary>
+	/// 윈도우에 출력할 카메라를 지정한다. 이 함수는 스레드 세이프하다.
+	/// </summary>
+	/// <param name="camera">윈도우에 실제로 뿌릴 카메라</param>
+	/// <returns>성공하면 S_OK, 실패하면 다른 값을 반환한다.</returns>
 	STDMETHOD(SetMainCamera(IKumaEngine_Camera * camera)) PURE;
 
 	HRESULT Initialize(HWND hWnd, const GameRenderDesc& desc)

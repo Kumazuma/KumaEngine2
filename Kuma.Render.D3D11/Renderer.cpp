@@ -99,7 +99,6 @@ namespace KumaEngine::cpp
 	void D3D11RenderModule::Process()
 	{
 		HRESULT hr{ S_OK };
-		std::vector<ComPtr<IMeshRenderer>> meshRenderers;
 		while (isRunning_)
 		{
 			if (mainCamera_ == nullptr)
@@ -107,32 +106,7 @@ namespace KumaEngine::cpp
 				SwitchToThread();
 				continue;
 			}
-
-			ComPtr<IEntityIterator> iter;
-			if (FAILED(hr = mainCamera_->GetIterator(__uuidof(ILayer), &iter)))
-			{
-				continue;
-			}
-			ComPtr<ILayer>layer;
-			while(iter->GetNext(&layer) == S_OK)
-			{
-				ComPtr<IEntityIterator> gameObjectIter;
-				ComPtr<IGameObject> gameObject;
-				if (FAILED(hr = layer->GetIterator(__uuidof(IGameObject), &gameObjectIter)))
-				{
-					continue;
-				}
-				while (iter->GetNext(&gameObject) == S_OK)
-				{
-					ComPtr<IMeshRenderer> meshRenderer;
-					if (FAILED(gameObject->GetComponent(__uuidof(IMeshRenderer), &meshRenderer)))
-					{
-						continue;
-					}
-					meshRenderers.emplace_back(meshRenderer);
-				}
-			}
-
+			
 			deviceContext_->ClearRenderTargetView(swapChainView.Get(), std::array<float, 4>({ 0.f, 0.f, 1.f, 1.f }).data());
 
 			swapChain_->Present(1, 0);
@@ -155,6 +129,32 @@ namespace KumaEngine::cpp
 	}
 	IFACEMETHODIMP D3D11RenderModule::Update()
 	{
+		HRESULT hr = S_OK;
+		ComPtr<IEntityIterator> iter;
+		if (FAILED(hr = mainCamera_->GetIterator(__uuidof(ILayer), &iter)))
+		{
+			return E_FAIL;
+		}
+		ComPtr<ILayer>layer;
+		while (iter->GetNext(&layer) == S_OK)
+		{
+			ComPtr<IEntityIterator> gameObjectIter;
+			ComPtr<IGameObject> gameObject;
+			if (FAILED(hr = layer->GetIterator(__uuidof(IGameObject), &gameObjectIter)))
+			{
+				continue;
+			}
+			while (iter->GetNext(&gameObject) == S_OK)
+			{
+				ComPtr<IMeshRenderer> meshRenderer;
+				if (FAILED(gameObject->GetComponent(__uuidof(IMeshRenderer), &meshRenderer)))
+				{
+					continue;
+				}
+				meshRenderers.emplace_back(meshRenderer);
+			}
+		}
+
 		return E_NOTIMPL;
 	}
 	IFACEMETHODIMP D3D11RenderModule::CreateMeshRenderer(IMeshRenderer** meshRenderer)
@@ -184,7 +184,21 @@ namespace KumaEngine::cpp
 
 	STDMETHODIMP_(HRESULT __stdcall) D3D11RenderModule::SetMainCamera(ICamera* camera)
 	{
-		return E_NOTIMPL;
+		HRESULT hr = S_OK;
+		ComPtr<ID3D11RenderComponent> renderCom;
+		hr = camera->QueryInterface(__uuidof(ComPtr<ID3D11RenderComponent>), &renderCom);
+		if (FAILED(hr))
+		{
+			OutputDebugStringA("Camera is not D3D11 Render Component On " __FUNCSIG__);
+			return E_INVALIDARG;
+		}
+		ICamera* prev = nextCamera_.exchange(camera);
+		if (prev != nullptr)
+		{
+			prev->Release();
+		}
+		camera->AddRef();
+		return S_OK;
 	}
 
 	IFACEMETHODIMP D3D11RenderModule::GetMesh(IKumaEngine_Mesh** mesh)

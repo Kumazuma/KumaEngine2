@@ -5,6 +5,8 @@
 #include<dxgi1_5.h>
 #include <wrl.h>
 #include <thread>
+#include <vector>
+#include <mutex>
 namespace KumaEngine::cpp
 {
 	using namespace Microsoft::WRL;
@@ -35,12 +37,23 @@ namespace KumaEngine::cpp
 		ComPtr<ID3D11DeviceContext4> deviceContext_;
 		ComPtr<IDXGISwapChain3> swapChain_;
 		ComPtr<ICamera> mainCamera_;
+		std::atomic<ICamera*> nextCamera_;
 		ComPtr<ID3D11RenderTargetView> swapChainView;
 		ComPtr<ID3D11Texture2D> swapChainTexture;
 		ComPtr<ID3D11Fence> fence_;
+		std::vector<ComPtr<IMeshRenderer>> meshRenderers;
 		HANDLE hFenceEvent_;
 		UINT64 fenceValue_;
 		INT currentBackBufferIndex;
 		std::thread renderThread_;
+	};
+
+	// {0CAD4CF4-6190-4F4F-93CC-10B5712267C8}
+	DEFINE_GUID(IID_D3D11_RENDER_COM,
+		0xcad4cf4, 0x6190, 0x4f4f, 0x93, 0xcc, 0x10, 0xb5, 0x71, 0x22, 0x67, 0xc8);
+	MIDL_INTERFACE("0CAD4CF4-6190-4F4F-93CC-10B5712267C8") ID3D11RenderComponent: IUnknown
+	{
+		STDMETHOD(UpdateAndSwap()) PURE;
+		STDMETHOD(Render(ID3D11DeviceContext4* deviceContext)) PURE;
 	};
 }

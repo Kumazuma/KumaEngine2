@@ -53,7 +53,7 @@ public:
 	{
 		refCount = 1;
 	}
-
+	virtual ~RefCountImpl() = default;
 	STDMETHOD(QueryInterface(REFIID riid,/* [iid_is][out] */ _COM_Outptr_ void __RPC_FAR* __RPC_FAR* ppvObject))
 	{
 		return DoQueryInterfaceHelper<T, T, BaseType...>::DoQueryInterface(this, riid, ppvObject);
@@ -117,7 +117,7 @@ namespace KumaEngine::cpp
 	{
 	public:
 		CommonWeakRef(IEntity* entity);
-		STDMETHOD(LockEntity(IEntity** entity));
+		STDMETHOD(LockEntity(REFIID iid, void** entity));
 		void Unlink();
 	private:
 		std::atomic<IEntity*> obj_;
@@ -127,7 +127,7 @@ namespace KumaEngine::cpp
 	{
 	}
 
-	inline STDMETHODIMP_(HRESULT __stdcall) CommonWeakRef::LockEntity(IEntity** entity)
+	inline STDMETHODIMP_(HRESULT __stdcall) CommonWeakRef::LockEntity(REFIID iid, void** entity)
 	{
 		if (entity == nullptr)
 		{
@@ -143,9 +143,10 @@ namespace KumaEngine::cpp
 		{
 			return E_FAIL;
 		}
-		*entity = ref;
-
-		return S_OK;
+		HRESULT hr = S_OK;
+		hr = ref->QueryInterface(iid, entity);
+		ref->Release();
+		return hr;
 	}
 
 	inline void CommonWeakRef::Unlink()

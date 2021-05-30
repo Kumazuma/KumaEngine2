@@ -28,10 +28,18 @@ public:
 		desc.height = 600;
 		frame->Show();
 		renderModule_->Initialize(frame->GetHWND(), desc);
+		KumaEngine::cpp::IWeakRef* weakRef{ nullptr };;
+		assert(renderModule_->GetWeakRef(&weakRef)== S_OK);
+		KumaEngine::cpp::IEntity* entity{ nullptr };
+		weakRef->LockEntity(__uuidof(KumaEngine::cpp::IEntity), (void**)&entity);
+		assert(entity != nullptr);
+		weakRef->Release();
+		entity->Release();
 		return true;
 	}
 	int OnExit() override
 	{
+		renderModule_->Release();
 		FreeLibrary(hRenderModule_);
 		return wxApp::OnExit();
 	}

@@ -8,9 +8,10 @@ namespace KumaEngine::cpp
 		isRunning_{ false },
 		currentBackBufferIndex{ 0 },
 		fenceValue_{ 0 },
-		hFenceEvent_{NULL}
+		hFenceEvent_{NULL},
+		weakRef_{ }
 	{
-
+		*(CommonWeakRef**)&weakRef_ = new CommonWeakRef{ this };
 	}
 	D3D11RenderModule::~D3D11RenderModule()
 	{
@@ -21,6 +22,11 @@ namespace KumaEngine::cpp
 		}
 		weakRef_->Unlink();
 		CloseHandle(hFenceEvent_);
+		ICamera* camera = nextCamera_.exchange(nullptr);
+		if (camera != nullptr)
+		{
+			camera->Release();
+		}
 	}
 	IFACEMETHODIMP D3D11RenderModule::Initialize(HWND hWnd, const GameRenderDesc* desc)
 	{
@@ -125,12 +131,25 @@ namespace KumaEngine::cpp
 
 	IFACEMETHODIMP D3D11RenderModule::GetWeakRef(IWeakRef** ref)
 	{
-		return E_NOTIMPL;
+		if (ref == nullptr)
+		{
+			return E_POINTER;
+		}
+		*ref = weakRef_.Get();
+		weakRef_->AddRef();
+		return S_OK;
 	}
 	IFACEMETHODIMP D3D11RenderModule::Update()
 	{
 		HRESULT hr = S_OK;
 		ComPtr<IEntityIterator> iter;
+		ICamera* next = nextCamera_.exchange(nullptr);
+		if (next != nullptr)
+		{
+			mainCamera_ = next;
+			next->Release();
+			next = nullptr;
+		}
 		if (FAILED(hr = mainCamera_->GetIterator(__uuidof(ILayer), &iter)))
 		{
 			return E_FAIL;

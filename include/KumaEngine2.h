@@ -35,7 +35,7 @@ DEFINE_GUID(IID_WEAKREF, 0x73bfc47b, 0xce21, 0x4d52, 0x99, 0x96, 0x4c, 0xd6, 0x8
 
 DECLARE_INTERFACE_IID_(IKumaEngine_WeakRef, IUnknown, "73BFC47B-CE21-4D52-9996-4CD60848568D")
 {
-	STDMETHOD(LockEntity(IKumaEngine_Entity** entity)) PURE;
+	STDMETHOD(LockEntity(REFIID iid, void** entity)) PURE;
 };
 
 // {06DA932D-20FC-4490-96ED-C65A59BE5DF6}
@@ -141,6 +141,11 @@ DEFINE_GUID(IID_RENDER_MODULE ,
 DECLARE_INTERFACE_IID_(IKumaEngine_RenderModule, IKumaEngine_Entity, "874F3420-2758-4D38-BB28-1E76F29C3765")
 {
 	STDMETHOD(Initialize(HWND hWnd, const GameRenderDesc * desc)) PURE;
+	/// <summary>
+	/// 렌더 모듈을 갱신한다. 이 함수는 스레드 세이프하지 않다.
+	/// 이 함수가 동작 중에 이 객체와 관련된 객체들이 수정되면 안된다.
+	/// </summary>
+	/// <returns>성공하면 S_OK, 실패하면 다른 값을 반환한다.</returns>
 	STDMETHOD(Update()) PURE;
 	STDMETHOD(CreateMeshRenderer(IKumaEngine_MeshRenderer** meshRenderer)) PURE;
 	STDMETHOD(CreateCamera(IKumaEngine_Camera** camera)) PURE;
@@ -171,6 +176,8 @@ DECLARE_INTERFACE_IID_(IKumaEngine_MeshRenderer, IKumaEngine_Component, "DEFAA1C
 	STDMETHOD(GetRenderModule(IKumaEngine_RenderModule** ppModule)) PURE;
 	STDMETHOD(SetTexture(IKumaEngine_Surface * texture)) PURE;
 	STDMETHOD(SetMesh(IKumaEngine_Mesh* mesh)) PURE;
+	STDMETHOD(GetTexture(IKumaEngine_Surface ** texture)) PURE;
+	STDMETHOD(GetMesh(IKumaEngine_Mesh ** mesh)) PURE;
 };
 
 // {602389EE-64B8-4C4E-900D-A2FCE91B4A2B}

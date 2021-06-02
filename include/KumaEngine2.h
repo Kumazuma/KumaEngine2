@@ -202,6 +202,14 @@ DECLARE_INTERFACE_IID_(IKumaEngine_Camera, IKumaEngine_Surface, "22F61AF9-ABFD-4
 	STDMETHOD_(float, GetFar()) PURE;
 };
 
+// {24CDED12-2693-47C8-868E-64E83AED939E}
+DEFINE_GUID(IID_MESH ,
+	0x24cded12, 0x2693, 0x47c8, 0x86, 0x8e, 0x64, 0xe8, 0x3a, 0xed, 0x93, 0x9e);
+
+MIDL_INTERFACE("24CDED12-2693-47C8-868E-64E83AED939E") IKumaEngine_Mesh: public IKumaEngine_Entity
+{
+	
+};
 
 namespace KumaEngine
 {

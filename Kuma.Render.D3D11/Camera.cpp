@@ -21,7 +21,12 @@ namespace KumaEngine::cpp
         std::lock_guard<decltype(lock_)> guard{ lock_ };
         if (auto it = layers_.find(layer); it == layers_.end())
         {
-            layers_.emplace(layer, layer);
+            ComPtr<IWeakRef> ref;
+            if (FAILED(layer->GetWeakRef(&ref)))
+            {
+                return E_FAIL;
+            }
+            layers_.emplace(layer, std::move(ref));
             return S_OK;
         }
 
@@ -44,7 +49,7 @@ namespace KumaEngine::cpp
         return E_INVALIDARG;
     }
 
-    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::GetLayers(IKumaEngine_EntityIterator** iterator)
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::GetIterator(REFIID itemType, IEntityIterator** iterator)
     {
         return E_NOTIMPL;
     }
@@ -69,18 +74,16 @@ namespace KumaEngine::cpp
         return 0.0f;
     }
 
-    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::UpdateAndSwap()
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::Render(D3D11RenderModule* renderModule, ID3D11DeviceContext4* deviceContext)
     {
+        isDoneRender_ = true;
         return E_NOTIMPL;
     }
-
-    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::Render(ID3D11DeviceContext4* deviceContext)
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::Update()
     {
+        isDoneRender_ = false;
+        renderers_.clear();
+
         return E_NOTIMPL;
-    }
-
-    auto CameraImpl::GetLayers() -> std::unordered_map<ILayer*, ComPtr<ILayer>>&
-    {
-        return layers_;
     }
 }

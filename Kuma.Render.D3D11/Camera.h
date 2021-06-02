@@ -8,24 +8,26 @@
 namespace KumaEngine::cpp
 {
 	using namespace Microsoft::WRL;
-	class CameraImpl : public ICamera, ID3D11RenderComponent
+	class CameraImpl : public ID3D11Camera
 	{
 	public:
-		STDMETHOD(GetWeakRef(IWeakRef** ref));
-		STDMETHOD(GetRenderModule(IRenderModule** ppModule));
-		STDMETHOD(AddLayer(ILayer* layer)) ;
-		STDMETHOD(RemoveLayer(ILayer* layer)) ;
-		STDMETHOD(GetLayers(IKumaEngine_EntityIterator** iterator));
-		STDMETHOD(SetNear(float value)) ;
-		STDMETHOD_(float, GetNear()) ;
-		STDMETHOD(SetFar(float value)) ;
-		STDMETHOD_(float, GetFar()) ;
-		STDMETHOD(UpdateAndSwap());
-		STDMETHOD(Render(ID3D11DeviceContext4* deviceContext));
-		auto GetLayers()->std::unordered_map<ILayer*, ComPtr<ILayer>>&;
+		STDMETHOD(GetWeakRef(IWeakRef** ref)) override;
+		STDMETHOD(GetRenderModule(IRenderModule** ppModule))  override;
+		STDMETHOD(AddLayer(ILayer* layer)) override;
+		STDMETHOD(RemoveLayer(ILayer* layer))  override;
+		STDMETHOD(GetIterator(REFIID itemType, IEntityIterator** iterator)) override;
+		STDMETHOD(SetNear(float value))  override;
+		STDMETHOD_(float, GetNear())  override;
+		STDMETHOD(SetFar(float value))  override;
+		STDMETHOD_(float, GetFar())  override;
+		STDMETHOD(Render(D3D11RenderModule* renderModule, ID3D11DeviceContext4* deviceContext)) override;
+		STDMETHOD(Update()) override;
+		STDMETHOD_(bool, IsDoneRender()) override;
 	private:
-		std::unordered_map<ILayer*, ComPtr<ILayer>> layers_;
+		std::vector<ComPtr<ID3D11MeshRenderer>> renderers_;
+		std::unordered_map<ILayer*, ComPtr<WeakRef>> layers_;
+		bool isDoneRender_;
 		std::mutex lock_;
 	};
-	using Camera = RefCountImpl2<CameraImpl, ICamera, ID3D11RenderComponent, ISurface, IEntity, IUnknown>;
+	using Camera = RefCountImpl2<CameraImpl, ID3D11Camera, ICamera, ISurface, IEntity, IUnknown>;
 }

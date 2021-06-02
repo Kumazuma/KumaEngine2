@@ -7,12 +7,10 @@
 namespace KumaEngine::cpp
 {
 
-	class MeshRendererImpl : public IMeshRenderer, ID3D11RenderComponent
+	class MeshRendererImpl : public ID3D11MeshRenderer
 	{
 	public:
-		STDMETHOD(UpdateAndSwap()) override;
 		STDMETHOD(GetWeakRef(IWeakRef** ref)) override;
-		STDMETHOD(Render(ID3D11DeviceContext4* deviceContext)) override;
 		STDMETHOD(GetRenderModule(IRenderModule**ppModule)) override;
 		STDMETHOD(SetTexture(ISurface* texture)) override;
 		STDMETHOD(SetMesh(IMesh* mesh)) override;
@@ -20,8 +18,9 @@ namespace KumaEngine::cpp
 	using MeshRenderer =
 		RefCountImpl2<
 			MeshRendererImpl,
+			ID3D11MeshRenderer,
 			IMeshRenderer,
-			ID3D11RenderComponent,
+			ID3D11Camera,
 			IComponent,
 			IEntity,
 			IUnknown>;

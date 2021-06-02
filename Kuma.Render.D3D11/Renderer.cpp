@@ -105,16 +105,23 @@ namespace KumaEngine::cpp
 	void D3D11RenderModule::Process()
 	{
 		HRESULT hr{ S_OK };
+		ICamera* nowCamera{ nullptr };
+
 		while (isRunning_)
 		{
-			if (mainCamera_ == nullptr)
+			ICamera* updatedCamera{ updatedCamera_.exchange(nullptr) };
+			if (updatedCamera != nullptr)
+			{
+				nowCamera = updatedCamera;
+			}
+			else if (nowCamera == nullptr)
 			{
 				SwitchToThread();
 				continue;
 			}
 			
 			deviceContext_->ClearRenderTargetView(swapChainView.Get(), std::array<float, 4>({ 0.f, 0.f, 1.f, 1.f }).data());
-
+			//TODO: Render
 			swapChain_->Present(1, 0);
 			const UINT64 fence = fenceValue_;
 			deviceContext_->Signal(fence_.Get(), fence);
@@ -146,6 +153,7 @@ namespace KumaEngine::cpp
 		ICamera* next = nextCamera_.exchange(nullptr);
 		if (next != nullptr)
 		{
+
 			mainCamera_ = next;
 			next->Release();
 			next = nullptr;
@@ -174,7 +182,7 @@ namespace KumaEngine::cpp
 			}
 		}
 
-		return E_NOTIMPL;
+		return S_OK;
 	}
 	IFACEMETHODIMP D3D11RenderModule::CreateMeshRenderer(IMeshRenderer** meshRenderer)
 	{
@@ -204,8 +212,8 @@ namespace KumaEngine::cpp
 	STDMETHODIMP_(HRESULT __stdcall) D3D11RenderModule::SetMainCamera(ICamera* camera)
 	{
 		HRESULT hr = S_OK;
-		ComPtr<ID3D11RenderComponent> renderCom;
-		hr = camera->QueryInterface(__uuidof(ComPtr<ID3D11RenderComponent>), &renderCom);
+		ComPtr<ID3D11Camera> renderCom;
+		hr = camera->QueryInterface(__uuidof(ComPtr<ID3D11Camera>), &renderCom);
 		if (FAILED(hr))
 		{
 			OutputDebugStringA("Camera is not D3D11 Render Component On " __FUNCSIG__);

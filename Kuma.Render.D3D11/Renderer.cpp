@@ -22,10 +22,15 @@ namespace KumaEngine::cpp
 		}
 		weakRef_->Unlink();
 		CloseHandle(hFenceEvent_);
-		ICamera* camera = nextCamera_.exchange(nullptr);
+		ICamera* camera{ nextCamera_.exchange(nullptr) };
+		ICamera* updateCamera{ updatedCamera_.exchange(nullptr) };
 		if (camera != nullptr)
 		{
 			camera->Release();
+		}
+		if (updateCamera != nullptr)
+		{
+			updateCamera->Release();
 		}
 	}
 	IFACEMETHODIMP D3D11RenderModule::Initialize(HWND hWnd, const GameRenderDesc* desc)
@@ -105,23 +110,29 @@ namespace KumaEngine::cpp
 	void D3D11RenderModule::Process()
 	{
 		HRESULT hr{ S_OK };
-		ICamera* nowCamera{ nullptr };
+		ID3D11Camera* nowCamera{ nullptr };
 
 		while (isRunning_)
 		{
-			ICamera* updatedCamera{ updatedCamera_.exchange(nullptr) };
+			ID3D11Camera* updatedCamera{ updatedCamera_.exchange(nullptr) };
 			if (updatedCamera != nullptr)
 			{
+				if (nowCamera != nullptr)
+				{
+					nowCamera->Release();
+				}
 				nowCamera = updatedCamera;
 			}
-			else if (nowCamera == nullptr)
+			if (nowCamera == nullptr)
 			{
 				SwitchToThread();
 				continue;
 			}
 			
 			deviceContext_->ClearRenderTargetView(swapChainView.Get(), std::array<float, 4>({ 0.f, 0.f, 1.f, 1.f }).data());
-			//TODO: Render
+			
+			nowCamera->Render(this, deviceContext_.Get());
+
 			swapChain_->Present(1, 0);
 			const UINT64 fence = fenceValue_;
 			deviceContext_->Signal(fence_.Get(), fence);
@@ -133,6 +144,10 @@ namespace KumaEngine::cpp
 				WaitForSingleObject(hFenceEvent_, INFINITE);
 			}
 			currentBackBufferIndex = swapChain_->GetCurrentBackBufferIndex();
+		}
+		if (nowCamera != nullptr)
+		{
+			nowCamera->Release();
 		}
 	}
 
@@ -146,6 +161,7 @@ namespace KumaEngine::cpp
 		weakRef_->AddRef();
 		return S_OK;
 	}
+	//이 메소드에서는 새로운 카메라가 메인 카메라로 세팅 되면 교체해주고 메인 카메라의 업데이트를 호출합니다.
 	IFACEMETHODIMP D3D11RenderModule::Update()
 	{
 		HRESULT hr = S_OK;
@@ -153,57 +169,53 @@ namespace KumaEngine::cpp
 		ICamera* next = nextCamera_.exchange(nullptr);
 		if (next != nullptr)
 		{
-
-			mainCamera_ = next;
+			ComPtr<ID3D11Camera> camera;
+			HRESULT hr = S_OK;
+			hr = next->QueryInterface(__uuidof(ID3D11Camera), &camera);
 			next->Release();
-			next = nullptr;
+			if (FAILED(hr))
+			{
+				return E_FAIL;
+			}
+			mainCamera_ = std::move(camera);
 		}
-		if (FAILED(hr = mainCamera_->GetIterator(__uuidof(ILayer), &iter)))
+		if (FAILED(mainCamera_->Update(this)))
 		{
 			return E_FAIL;
 		}
-		ComPtr<ILayer>layer;
-		while (iter->GetNext(&layer) == S_OK)
+		mainCamera_->AddRef();
+		ID3D11Camera* prevUpdatedCamera = updatedCamera_.exchange(mainCamera_.Get());
+		if (prevUpdatedCamera != nullptr)
 		{
-			ComPtr<IEntityIterator> gameObjectIter;
-			ComPtr<IGameObject> gameObject;
-			if (FAILED(hr = layer->GetIterator(__uuidof(IGameObject), &gameObjectIter)))
-			{
-				continue;
-			}
-			while (iter->GetNext(&gameObject) == S_OK)
-			{
-				ComPtr<IMeshRenderer> meshRenderer;
-				if (FAILED(gameObject->GetComponent(__uuidof(IMeshRenderer), &meshRenderer)))
-				{
-					continue;
-				}
-				meshRenderers.emplace_back(meshRenderer);
-			}
+			prevUpdatedCamera->Release();
 		}
-
 		return S_OK;
 	}
 	IFACEMETHODIMP D3D11RenderModule::CreateMeshRenderer(IMeshRenderer** meshRenderer)
 	{
 		return E_NOTIMPL;
 	}
+
 	STDMETHODIMP_(HRESULT __stdcall) D3D11RenderModule::CreateCamera(ICamera** camera)
 	{
 		return E_NOTIMPL;
 	}
+
 	IFACEMETHODIMP D3D11RenderModule::LoadMeshFromFile(const wchar_t* meshId, const wchar_t* filePath)
 	{
 		return E_NOTIMPL;
 	}
+
 	IFACEMETHODIMP D3D11RenderModule::LoadMeshFromMemory(const wchar_t* meshId, const wchar_t* ext, const uint8_t* bytes, size_t byteLength)
 	{
 		return E_NOTIMPL;
 	}
+
 	IFACEMETHODIMP D3D11RenderModule::LoadTextureFromFile(const wchar_t* textureId, const wchar_t* filePath)
 	{
 		return E_NOTIMPL;
 	}
+
 	IFACEMETHODIMP D3D11RenderModule::LoadTextureFromMemory(const wchar_t* textureId, const wchar_t* ext, const uint8_t* bytes, size_t byteLength)
 	{
 		return E_NOTIMPL;
@@ -236,5 +248,13 @@ namespace KumaEngine::cpp
 	IFACEMETHODIMP D3D11RenderModule::GetTexture(IKumaEngine_Surface** texture)
 	{
 		return E_NOTIMPL;
+	}
+	ComPtr<ID3D11Device5> D3D11RenderModule::GetDevice() const
+	{
+		return device_;
+	}
+	ComPtr<ID3D11DeviceContext4> D3D11RenderModule::GetDeviceContext() const
+	{
+		return deviceContext_;
 	}
 }

@@ -79,11 +79,96 @@ namespace KumaEngine::cpp
         isDoneRender_ = true;
         return E_NOTIMPL;
     }
-    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::Update()
+    void VisitAndGetRenderer(ComPtr<IGameObject> ptr, std::vector<ComPtr<ID3D11MeshRenderer>> list)
+    {
+        ComPtr<ID3D11MeshRenderer> renderer{};
+        ComPtr<IEntityIterator> iterator{};
+        if (SUCCEEDED(ptr->GetComponent(__uuidof(ID3D11MeshRenderer), &renderer)))
+        {
+            list.emplace_back(renderer);
+        }
+        if (FAILED(ptr->GetIterator(__uuidof(IGameObject) , &iterator)))
+        {
+            return;
+        }
+        while (SUCCEEDED(iterator->GetNext(&ptr)))
+        {
+            VisitAndGetRenderer(ptr, list);
+        }
+    }
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::Update(D3D11RenderModule* renderModule)
     {
         isDoneRender_ = false;
         renderers_.clear();
+        defferedRenderers_.clear();
+        forwardRenderers_.clear();
 
-        return E_NOTIMPL;
+        auto it{ layers_.begin() };
+        auto const end{ layers_.end() };
+        //Collect All Renderer in layers
+        while (it != end)
+        {
+            ComPtr<ILayer> layer{};
+            ComPtr<IEntityIterator> iterator{};
+            if (FAILED(it->second->LockEntity(__uuidof(ILayer), &layer)) || FAILED(layer->GetIterator(__uuidof(IGameObject), &iterator)))
+            {
+                it = layers_.erase(it);
+                continue;
+            }
+            ComPtr<IGameObject> gameObject;
+            while (SUCCEEDED(iterator->GetNext(&gameObject)))
+            {
+                VisitAndGetRenderer(gameObject, renderers_);
+            }
+            ++it;
+        }
+        //메테리얼 셰이더에 따라 포워드이냐, 디퍼드로 나눈다. 
+        for (auto& it : renderers_)
+        {
+            ComPtr<IMaterial> material;
+            ComPtr<IShader> shader;
+            if (FAILED(it->PrepareRender()))
+            {
+                continue;
+            }
+
+            it->GetMaterial(&material);
+            if (material == nullptr)
+            {
+                continue;
+            }
+            material->GetShader(&shader);
+            if (shader == nullptr)
+            {
+                defferedRenderers_.emplace_back(it.Get());
+            }
+            else
+            {
+                forwardRenderers_.emplace_back(it.Get());
+            }
+            //만약에 서페이스가 렌더타겟이면 해당 렌더 타겟도 업데이트 해준다.
+            ComPtr<IEntityIterator> surfaces;
+            ComPtr<IRenderTargetSurface> surface;
+            if (FAILED(material->GetIterator(__uuidof(IRenderTargetSurface), &surfaces)))
+            {
+                continue;
+            }
+
+            while (SUCCEEDED(surfaces->GetNext(&surface)))
+            {
+                ComPtr<ID3D11RenderTargetSurface> _surface;
+                if (FAILED(surface.As(&_surface)))
+                {
+                    continue;
+                }
+                _surface->Update(renderModule);
+            }
+        }
+        return S_OK;
+    }
+
+    STDMETHODIMP_(bool __stdcall) CameraImpl::IsDoneRender()
+    {
+        return isDoneRender_;
     }
 }

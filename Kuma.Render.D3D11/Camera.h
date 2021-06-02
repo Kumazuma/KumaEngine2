@@ -21,13 +21,15 @@ namespace KumaEngine::cpp
 		STDMETHOD(SetFar(float value))  override;
 		STDMETHOD_(float, GetFar())  override;
 		STDMETHOD(Render(D3D11RenderModule* renderModule, ID3D11DeviceContext4* deviceContext)) override;
-		STDMETHOD(Update()) override;
+		STDMETHOD(Update(D3D11RenderModule* renderModule)) override;
 		STDMETHOD_(bool, IsDoneRender()) override;
 	private:
 		std::vector<ComPtr<ID3D11MeshRenderer>> renderers_;
-		std::unordered_map<ILayer*, ComPtr<WeakRef>> layers_;
+		std::vector<ID3D11MeshRenderer*> defferedRenderers_;
+		std::vector<ID3D11MeshRenderer*> forwardRenderers_;
+		std::unordered_map<ILayer*, ComPtr<IWeakRef>> layers_;
 		bool isDoneRender_;
 		std::mutex lock_;
 	};
-	using Camera = RefCountImpl2<CameraImpl, ID3D11Camera, ICamera, ISurface, IEntity, IUnknown>;
+	using Camera = RefCountImpl2<CameraImpl, ID3D11Camera, ICamera, IEntity, IUnknown>;
 }

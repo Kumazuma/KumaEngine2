@@ -14,7 +14,8 @@ interface IKumaEngine_MeshRenderer;
 interface IKumaEngine_Camera;
 interface IKumaEngine_Surface;
 interface IKumaEngine_Mesh;
-
+interface IKumaEngine_Material;
+interface IKumaEngine_Shader;
 
 typedef struct _GameRenderDesc
 {
@@ -23,6 +24,7 @@ typedef struct _GameRenderDesc
 	bool fullscreen;
 } GameRenderDesc;
 #if defined(__cplusplus)
+#include<type_traits>
 // {93528159-3A3B-4590-AE8B-429217AC7F58}
 DEFINE_GUID(IID_ENTITY, 0x93528159, 0x3a3b, 0x4590, 0xae, 0x8b, 0x42, 0x92, 0x17, 0xac, 0x7f, 0x58);
 DECLARE_INTERFACE_IID_(IKumaEngine_Entity, IUnknown, "93528159-3A3B-4590-AE8B-429217AC7F58")
@@ -95,7 +97,7 @@ DECLARE_INTERFACE_IID_(IKumaEngine_GameObject, IKumaEngine_Entity, "3D0E0216-86F
 	STDMETHOD(GetComponent(REFIID guid, void** component)) PURE;
 	STDMETHOD(GetParent(IKumaEngine_WeakRef** parent)) PURE;
 	STDMETHOD(SetParent(IKumaEngine_WeakRef* parent)) PURE;
-	STDMETHOD(GetChildren(IKumaEngine_EntityIterator** iterator)) PURE;
+	STDMETHOD(GetIterator(REFIID itemType, IKumaEngine_EntityIterator * *iterator)) PURE;
 	STDMETHOD(Update()) PURE;
 	STDMETHOD(LateUpdate()) PURE;
 	STDMETHOD_(bool, IsDestroyed()) PURE;
@@ -174,10 +176,10 @@ DEFINE_GUID(IID_MESH_RENDERER,
 DECLARE_INTERFACE_IID_(IKumaEngine_MeshRenderer, IKumaEngine_Component, "DEFAA1C4-4CA3-40F3-B354-C2BD5486CFC6")
 {
 	STDMETHOD(GetRenderModule(IKumaEngine_RenderModule** ppModule)) PURE;
-	STDMETHOD(SetTexture(IKumaEngine_Surface * texture)) PURE;
 	STDMETHOD(SetMesh(IKumaEngine_Mesh* mesh)) PURE;
-	STDMETHOD(GetTexture(IKumaEngine_Surface ** texture)) PURE;
 	STDMETHOD(GetMesh(IKumaEngine_Mesh ** mesh)) PURE;
+	STDMETHOD(GetMaterial(IKumaEngine_Material ** material)) PURE;
+	STDMETHOD(SetMaterial(IKumaEngine_Material * material)) PURE;
 };
 
 // {602389EE-64B8-4C4E-900D-A2FCE91B4A2B}
@@ -188,11 +190,24 @@ DECLARE_INTERFACE_IID_(IKumaEngine_Surface, IKumaEngine_Entity, "22F61AF9-ABFD-4
 	STDMETHOD(GetRenderModule(IKumaEngine_RenderModule** ppModule)) PURE;
 };
 
+// {6034E20E-FAB7-46F1-B94D-30F51D586B73}
+DEFINE_GUID(IID_RENDERTARGET_SURFACE ,
+	0x6034e20e, 0xfab7, 0x46f1, 0xb9, 0x4d, 0x30, 0xf5, 0x1d, 0x58, 0x6b, 0x73);
+
+DECLARE_INTERFACE_IID_(IKumaEngine_RenderTargetSurface, IKumaEngine_Surface, "6034E20E-FAB7-46F1-B94D-30F51D586B73")
+{
+	STDMETHOD(GetCamera(IKumaEngine_Camera ** ppModule)) PURE;
+	STDMETHOD(SetCamera(IKumaEngine_Camera * pModule)) PURE;
+	STDMETHOD(SetSize(uint16_t width, uint16_t height)) PURE;
+	STDMETHOD(GetSize(uint16_t* width, uint16_t* height)) PURE;
+};
+
 // {22F61AF9-ABFD-4096-8D5E-B7BAB49F017E}
 DEFINE_GUID(IID_CAMERA ,
 	0x22f61af9, 0xabfd, 0x4096, 0x8d, 0x5e, 0xb7, 0xba, 0xb4, 0x9f, 0x1, 0x7e);
-DECLARE_INTERFACE_IID_(IKumaEngine_Camera, IKumaEngine_Surface, "22F61AF9-ABFD-4096-8D5E-B7BAB49F017E")
+DECLARE_INTERFACE_IID_(IKumaEngine_Camera, IKumaEngine_Entity, "22F61AF9-ABFD-4096-8D5E-B7BAB49F017E")
 {
+	STDMETHOD(GetRenderModule(IKumaEngine_RenderModule ** ppModule)) PURE;
 	STDMETHOD(AddLayer(IKumaEngine_Layer * layer)) PURE;
 	STDMETHOD(RemoveLayer(IKumaEngine_Layer * layer)) PURE;
 	STDMETHOD(GetIterator(REFIID itemType, IKumaEngine_EntityIterator * *iterator)) PURE;
@@ -209,6 +224,35 @@ DEFINE_GUID(IID_MESH ,
 MIDL_INTERFACE("24CDED12-2693-47C8-868E-64E83AED939E") IKumaEngine_Mesh: public IKumaEngine_Entity
 {
 	
+};
+
+// {6D631EA4-D201-4E97-967D-96E640E34D33}
+DEFINE_GUID(IID_MATERIAL,
+	0x6d631ea4, 0xd201, 0x4e97, 0x96, 0x7d, 0x96, 0xe6, 0x40, 0xe3, 0x4d, 0x33);
+
+MIDL_INTERFACE("24CDED12-2693-47C8-868E-64E83AED939E") IKumaEngine_Material: public IKumaEngine_Entity
+{
+	STDMETHOD(GetShader(IKumaEngine_Shader * *shader))PURE;
+	STDMETHOD(SetPropertyInt(const char* key, int32_t value)) PURE;
+	STDMETHOD(GetPropertyInt(const char* key, int32_t* value)) PURE;
+	STDMETHOD(SetPropertyFloat(const char* key, float value)) PURE;
+	STDMETHOD(GetPropertyFloat(const char* key, float* value)) PURE;
+	STDMETHOD(SetPropertyVector4(const char* key, const float* value)) PURE;
+	STDMETHOD(GetPropertyVector4(const char* key, float* value)) PURE;
+	STDMETHOD(SetPropertyMatrix(const char* key, const float* value)) PURE;
+	STDMETHOD(GetPropertyMatrix(const char* key, float* value)) PURE;
+	STDMETHOD(SetPropertyTexture(const char* key, IKumaEngine_Surface* value)) PURE;
+	STDMETHOD(GetPropertyTexture(const char* key, IKumaEngine_Surface** value)) PURE;
+	STDMETHOD(GetIterator(REFIID itemType, IKumaEngine_EntityIterator** iterator)) PURE;
+};
+
+// {96A50ABC-71A9-4523-8B1B-FDCBC85D3E3D}
+DEFINE_GUID(IID_SHADER ,
+	0x96a50abc, 0x71a9, 0x4523, 0x8b, 0x1b, 0xfd, 0xcb, 0xc8, 0x5d, 0x3e, 0x3d);
+
+MIDL_INTERFACE("96A50ABC-71A9-4523-8B1B-FDCBC85D3E3D") IKumaEngine_Shader: public IKumaEngine_Entity
+{
+
 };
 
 namespace KumaEngine
@@ -228,7 +272,10 @@ namespace KumaEngine
 		typedef ::IKumaEngine_MeshRenderer IMeshRenderer;
 		typedef ::IKumaEngine_Camera ICamera;
 		typedef ::IKumaEngine_Surface ISurface;
+		typedef ::IKumaEngine_RenderTargetSurface IRenderTargetSurface;
 		typedef ::IKumaEngine_Mesh IMesh;
+		typedef ::IKumaEngine_Material IMaterial;
+		typedef ::IKumaEngine_Shader IShader;
 	}
 };
 #else

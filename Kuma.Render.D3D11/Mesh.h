@@ -8,18 +8,17 @@
 using namespace Microsoft::WRL;
 namespace KumaEngine::cpp
 {
-	class D3D11MeshImpl: public IMesh, ID3D11Renderable
+	class D3D11MeshImpl: public IMesh
 	{
 	public:
 		D3D11MeshImpl();
 		~D3D11MeshImpl();
 		STDMETHODIMP GetWeakRef(IWeakRef** ref) override;
-		STDMETHODIMP Render(D3D11RenderModule* renderModule, ID3D11DeviceContext4* deviceContext) override;
 	private:
 		ComPtr<ID3D11Buffer> vertexBuffer_;
 		ComPtr<ID3D11Buffer> indexBuffer_;
 		ComPtr<CommonWeakRef> weakRef_;
 		std::vector<ComPtr<IWeakRef>> meshRenderers_;
 	};
-	using D3D11Mesh = RefCountImpl2<D3D11MeshImpl, ID3D11Renderable, IMesh, IEntity, IUnknown>;
+	using D3D11Mesh = RefCountImpl2<D3D11MeshImpl, IMesh, IEntity, IUnknown>;
 }

@@ -12,7 +12,7 @@ namespace KumaEngine::cpp
 	public:
 		STDMETHOD(GetWeakRef(IWeakRef** ref)) override;
 		STDMETHOD(GetRenderModule(IRenderModule**ppModule)) override;
-		STDMETHOD(SetTexture(ISurface* texture)) override;
+
 		STDMETHOD(SetMesh(IMesh* mesh)) override;
 	};
 	using MeshRenderer =

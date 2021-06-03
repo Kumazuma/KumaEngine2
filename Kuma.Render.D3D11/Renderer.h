@@ -7,6 +7,7 @@
 #include <thread>
 #include <vector>
 #include <mutex>
+#include <DirectXMath.h>
 namespace KumaEngine::cpp
 {
 	using namespace Microsoft::WRL;
@@ -68,6 +69,10 @@ namespace KumaEngine::cpp
 	MIDL_INTERFACE("0CAD4CF4-6190-4F4F-93CC-10B5712267C8") ID3D11MeshRenderer: IMeshRenderer
 	{
 		STDMETHOD(PrepareRender()) PURE;
+		STDMETHOD(GetWorldTransform(DirectX::XMFLOAT4X4* out)) PURE;
+		STDMETHOD(GetPreparedMesh(IMesh** mesh)) PURE;
+		STDMETHOD(GetPreparedMaterial(IMaterial **material)) PURE;
+
 	};
 
 	// {74634E34-1CDF-4215-82A2-0DECF337AF2F}

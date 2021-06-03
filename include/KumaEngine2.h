@@ -49,6 +49,16 @@ DECLARE_INTERFACE_IID_(IKumaEngine_EntityIterator, IUnknown, "06DA932D-20FC-4490
 	STDMETHOD(GetNext(void** entity)) PURE;
 };
 
+// {475E9B20-FBFD-4B31-B21C-04F0BA6B8863}
+DEFINE_GUID(IID_HAS_ITERATOR ,
+	0x475e9b20, 0xfbfd, 0x4b31, 0xb2, 0x1c, 0x4, 0xf0, 0xba, 0x6b, 0x88, 0x63);
+
+DECLARE_INTERFACE_IID_(IKumaEngine_HasIterator, IKumaEngine_Entity, "475E9B20-FBFD-4B31-B21C-04F0BA6B8863")
+{
+	STDMETHOD(GetIterator(REFIID itemType, IKumaEngine_EntityIterator * *iterator)) PURE;
+};
+
+
 // {1DF1AB26-5BEB-47C0-99B2-5523882982FC}
 DEFINE_GUID(IID_SCENE ,
 	0x1df1ab26, 0x5beb, 0x47c0, 0x99, 0xb2, 0x55, 0x23, 0x88, 0x29, 0x82, 0xfc);
@@ -66,9 +76,8 @@ DECLARE_INTERFACE_IID_(IKumaEngine_Scene, IKumaEngine_Entity, "1DF1AB26-5BEB-47C
 DEFINE_GUID(IID_LAYER ,
 	0xabb60990, 0xa5a7, 0x4851, 0x9b, 0x44, 0xbb, 0xb7, 0xc3, 0x5, 0x10, 0x78);
 
-DECLARE_INTERFACE_IID_(IKumaEngine_Layer, IKumaEngine_Entity, "ABB60990-A5A7-4851-9B44-BBB7C3051078")
+MIDL_INTERFACE("ABB60990-A5A7-4851-9B44-BBB7C3051078") IKumaEngine_Layer:public IKumaEngine_HasIterator
 {
-	STDMETHOD(GetIterator(REFIID itemType, IKumaEngine_EntityIterator** iterator)) PURE;
 	STDMETHOD(AddObject(IKumaEngine_GameObject* obj)) PURE;
 	STDMETHOD(RemoveObject(IKumaEngine_GameObject * obj)) PURE;
 	STDMETHOD(Update()) PURE;
@@ -92,12 +101,11 @@ DECLARE_INTERFACE_IID_(IKumaEngine_GameEngine, IKumaEngine_Entity, "9EB2C8C8-B69
 DEFINE_GUID(IID_GAMEOBJECT ,
 	0x3d0e0216, 0x86f5, 0x4be4, 0xbb, 0xe5, 0xe5, 0x3c, 0x92, 0x8c, 0x79, 0xe4);
 
-DECLARE_INTERFACE_IID_(IKumaEngine_GameObject, IKumaEngine_Entity, "3D0E0216-86F5-4BE4-BBE5-E53C928C79E4")
+MIDL_INTERFACE("3D0E0216-86F5-4BE4-BBE5-E53C928C79E4") IKumaEngine_GameObject: public IKumaEngine_HasIterator
 {
 	STDMETHOD(GetComponent(REFIID guid, void** component)) PURE;
 	STDMETHOD(GetParent(IKumaEngine_WeakRef** parent)) PURE;
 	STDMETHOD(SetParent(IKumaEngine_WeakRef* parent)) PURE;
-	STDMETHOD(GetIterator(REFIID itemType, IKumaEngine_EntityIterator * *iterator)) PURE;
 	STDMETHOD(Update()) PURE;
 	STDMETHOD(LateUpdate()) PURE;
 	STDMETHOD_(bool, IsDestroyed()) PURE;
@@ -175,7 +183,6 @@ DEFINE_GUID(IID_MESH_RENDERER,
 	0xdefaa1c4, 0x4ca3, 0x40f3, 0xb3, 0x54, 0xc2, 0xbd, 0x54, 0x86, 0xcf, 0xc6);
 DECLARE_INTERFACE_IID_(IKumaEngine_MeshRenderer, IKumaEngine_Component, "DEFAA1C4-4CA3-40F3-B354-C2BD5486CFC6")
 {
-	STDMETHOD(GetRenderModule(IKumaEngine_RenderModule** ppModule)) PURE;
 	STDMETHOD(SetMesh(IKumaEngine_Mesh* mesh)) PURE;
 	STDMETHOD(GetMesh(IKumaEngine_Mesh ** mesh)) PURE;
 	STDMETHOD(GetMaterial(IKumaEngine_Material ** material)) PURE;
@@ -208,8 +215,8 @@ DEFINE_GUID(IID_CAMERA ,
 DECLARE_INTERFACE_IID_(IKumaEngine_Camera, IKumaEngine_Entity, "22F61AF9-ABFD-4096-8D5E-B7BAB49F017E")
 {
 	STDMETHOD(GetRenderModule(IKumaEngine_RenderModule ** ppModule)) PURE;
-	STDMETHOD(AddLayer(IKumaEngine_Layer * layer)) PURE;
-	STDMETHOD(RemoveLayer(IKumaEngine_Layer * layer)) PURE;
+	STDMETHOD(Add(IKumaEngine_HasIterator * layer)) PURE;
+	STDMETHOD(Remove(IKumaEngine_HasIterator * layer)) PURE;
 	STDMETHOD(GetIterator(REFIID itemType, IKumaEngine_EntityIterator * *iterator)) PURE;
 	STDMETHOD(SetNear(float value)) PURE;
 	STDMETHOD_(float, GetNear()) PURE;
@@ -276,6 +283,7 @@ namespace KumaEngine
 		typedef ::IKumaEngine_Mesh IMesh;
 		typedef ::IKumaEngine_Material IMaterial;
 		typedef ::IKumaEngine_Shader IShader;
+		typedef ::IKumaEngine_HasIterator IHasIterator;
 	}
 };
 #else

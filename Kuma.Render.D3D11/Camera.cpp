@@ -12,7 +12,7 @@ namespace KumaEngine::cpp
         return E_NOTIMPL;
     }
 
-    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::AddLayer(ILayer* layer)
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::Add(IHasIterator* layer)
     {
         if (layer == nullptr)
         {
@@ -33,7 +33,7 @@ namespace KumaEngine::cpp
         return E_INVALIDARG;
     }
 
-    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::RemoveLayer(ILayer* layer)
+    STDMETHODIMP_(HRESULT __stdcall) CameraImpl::Remove(IHasIterator* layer)
     {
         if (layer == nullptr)
         {
@@ -108,9 +108,9 @@ namespace KumaEngine::cpp
         //Collect All Renderer in layers
         while (it != end)
         {
-            ComPtr<ILayer> layer{};
+            ComPtr<IHasIterator> layer{};
             ComPtr<IEntityIterator> iterator{};
-            if (FAILED(it->second->LockEntity(__uuidof(ILayer), &layer)) || FAILED(layer->GetIterator(__uuidof(IGameObject), &iterator)))
+            if (FAILED(it->second->LockEntity(__uuidof(IHasIterator), &layer)) || FAILED(layer->GetIterator(__uuidof(IGameObject), &iterator)))
             {
                 it = layers_.erase(it);
                 continue;

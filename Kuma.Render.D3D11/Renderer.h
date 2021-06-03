@@ -11,7 +11,7 @@ namespace KumaEngine::cpp
 {
 	using namespace Microsoft::WRL;
 	constexpr int SWAP_CHAIN_COUNT{ 2 };
-	class ID3D11Camera;
+	struct ID3D11Camera;
 	class D3D11RenderModule: public RefCountImpl<IRenderModule, IEntity, IUnknown>
 	{
 	public:

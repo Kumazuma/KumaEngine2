@@ -1,5 +1,6 @@
 #include"pch.h"
 #include"Renderer.h"
+#include"Camera.h"
 #include<functional>
 #include<array>
 namespace KumaEngine::cpp
@@ -198,7 +199,17 @@ namespace KumaEngine::cpp
 
 	STDMETHODIMP_(HRESULT __stdcall) D3D11RenderModule::CreateCamera(ICamera** camera)
 	{
-		return E_NOTIMPL;
+		if (camera == nullptr)
+		{
+			return E_POINTER;
+		}
+		Camera* cam{ new(std::nothrow) Camera{} };
+		if (cam == nullptr)
+		{
+			return E_FAIL;
+		}
+		*camera = cam;
+		return S_OK;
 	}
 
 	IFACEMETHODIMP D3D11RenderModule::LoadMeshFromFile(const wchar_t* meshId, const wchar_t* filePath)
@@ -223,6 +234,11 @@ namespace KumaEngine::cpp
 
 	STDMETHODIMP_(HRESULT __stdcall) D3D11RenderModule::SetMainCamera(ICamera* camera)
 	{
+		if (camera == nullptr)
+		{
+			return E_POINTER;
+		}
+
 		HRESULT hr = S_OK;
 		ComPtr<ID3D11Camera> renderCom;
 		hr = camera->QueryInterface(__uuidof(ComPtr<ID3D11Camera>), &renderCom);

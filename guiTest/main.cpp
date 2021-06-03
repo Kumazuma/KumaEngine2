@@ -28,23 +28,31 @@ public:
 		desc.height = 600;
 		frame->Show();
 		renderModule_->Initialize(frame->GetHWND(), desc);
-		KumaEngine::cpp::IWeakRef* weakRef{ nullptr };;
-		assert(renderModule_->GetWeakRef(&weakRef)== S_OK);
-		KumaEngine::cpp::IEntity* entity{ nullptr };
-		weakRef->LockEntity(__uuidof(KumaEngine::cpp::IEntity), (void**)&entity);
-		assert(entity != nullptr);
-		weakRef->Release();
-		entity->Release();
+		renderModule_->CreateCamera(&cam_);
+		renderModule_->SetMainCamera(cam_);
+
+		timer_ = new wxTimer{ this };
+		this->Bind(wxEVT_TIMER, [this](wxTimerEvent& evt)
+			{
+				renderModule_->Update();
+			});
+		timer_->Start(10);
 		return true;
 	}
 	int OnExit() override
 	{
+		timer_->Stop();
+		cam_->Release();
 		renderModule_->Release();
+
 		FreeLibrary(hRenderModule_);
+		delete timer_;
 		return wxApp::OnExit();
 	}
 private:
+	wxTimer* timer_;
 	KumaEngine::cpp::IRenderModule* renderModule_;
+	KumaEngine::cpp::ICamera* cam_;
 	HMODULE hRenderModule_;
 };
 

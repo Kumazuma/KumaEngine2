@@ -30,6 +30,11 @@ namespace KumaEngine::cpp
 	private:
 		ComPtr<IWeakRef> gameObj_;
 		std::array<XMFLOAT4X4, 2> worldMatrices;
+		std::atomic<IMesh*> mesh_;
+		std::atomic<ID3D11Material*> material_;
+		IMesh* preparedMesh_;
+		ID3D11Material* preparedMaterial_;
+		
 		int index_;
 	};
 	using MeshRenderer =

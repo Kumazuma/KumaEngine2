@@ -42,11 +42,33 @@ namespace KumaEngine::cpp
 	}
 	STDMETHODIMP_(HRESULT __stdcall) MeshRendererImpl::GetMaterial(IMaterial** material)
 	{
-		return E_NOTIMPL;
+		if (material == nullptr)
+		{
+			return E_POINTER;
+		}
+		ID3D11Material* currentMat{};
+		currentMat = material_.load(std::memory_order::memory_order_acquire);
+		currentMat->AddRef();
+		*material = currentMat;
+		return S_OK;
 	}
 	STDMETHODIMP_(HRESULT __stdcall) MeshRendererImpl::SetMaterial(IMaterial* material)
 	{
-		return E_NOTIMPL;
+		if (material == nullptr)
+		{
+			return E_POINTER;
+		}
+		ID3D11Material* mat{};
+		if (FAILED(material->QueryInterface(&mat)))
+		{
+			return E_INVALIDARG;
+		}
+		ID3D11Material* prev = material_.exchange(mat);
+		if (prev != nullptr)
+		{
+			prev->AddRef();
+		}
+		return S_OK;
 	}
 	STDMETHODIMP_(HRESULT __stdcall) MeshRendererImpl::PrepareRender()
 	{
@@ -84,6 +106,15 @@ namespace KumaEngine::cpp
 		int volatile nextIndex{ index_ == 1 ? 0 : 1 };
 		XMStoreFloat4x4(&worldMatrices[nextIndex], mWorldTransform);
 		index_ = nextIndex;
+		ID3D11Material* material = material_.load(std::memory_order::memory_order_relaxed);
+		if (material != preparedMaterial_)
+		{
+			ID3D11Material* volatile oldMaterial = preparedMaterial_;
+			preparedMaterial_ = material;
+			oldMaterial->Release();
+			material->AddRef();
+		}
+
 		return S_OK;
 	}
 	STDMETHODIMP_(HRESULT __stdcall) MeshRendererImpl::GetWorldTransform(DirectX::XMFLOAT4X4* out)

@@ -16,6 +16,7 @@ namespace KumaEngine::cpp
 	{
 	public:
 		MeshRendererImpl();
+		~MeshRendererImpl();
 		STDMETHOD(GetWeakRef(IWeakRef** ref));
 		STDMETHOD(SetGameObject(IWeakRef* gameObject));
 		STDMETHOD(Update());
@@ -30,7 +31,7 @@ namespace KumaEngine::cpp
 	private:
 		ComPtr<IWeakRef> gameObj_;
 		std::array<XMFLOAT4X4, 2> worldMatrices;
-		std::atomic<IMesh*> mesh_;
+		std::atomic<ID3D11Mesh*> mesh_;
 		std::atomic<ID3D11Material*> material_;
 		IMesh* preparedMesh_;
 		ID3D11Material* preparedMaterial_;

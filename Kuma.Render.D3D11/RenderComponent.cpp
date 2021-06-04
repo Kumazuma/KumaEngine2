@@ -3,8 +3,32 @@
 namespace KumaEngine::cpp
 {
 	MeshRendererImpl::MeshRendererImpl():
-		index_{ 0 }
+		index_{ 0 },
+		preparedMaterial_{},
+		material_{},
+		mesh_{},
+		preparedMesh_{},
+		worldMatrices{}
 	{
+	}
+	MeshRendererImpl::~MeshRendererImpl()
+	{
+		if (auto* mat = material_.exchange(nullptr); mat != nullptr)
+		{
+			mat->Release();
+		}
+		if (auto* mesh = mesh_.exchange(nullptr); mesh != nullptr)
+		{
+			mesh->Release();
+		}
+		if (preparedMaterial_ != nullptr)
+		{
+			preparedMaterial_->Release();
+		}
+		if (preparedMesh_ != nullptr)
+		{
+			preparedMesh_->Release();
+		}
 	}
 	STDMETHODIMP_(HRESULT __stdcall) MeshRendererImpl::GetWeakRef(IWeakRef** ref)
 	{
@@ -34,11 +58,34 @@ namespace KumaEngine::cpp
 	}
 	STDMETHODIMP_(HRESULT __stdcall) MeshRendererImpl::SetMesh(IMesh* mesh)
 	{
-		return E_NOTIMPL;
+		if (mesh == nullptr)
+		{
+			return E_POINTER;
+		}
+		ID3D11Mesh* d3d11Mesh{};
+		if (FAILED(mesh->QueryInterface(&d3d11Mesh)))
+		{
+			return E_INVALIDARG;
+		}
+		ID3D11Mesh* prev = mesh_.exchange(d3d11Mesh);
+		if (prev != nullptr)
+		{
+			prev->AddRef();
+		}
+		return S_OK;
 	}
+
 	STDMETHODIMP_(HRESULT __stdcall) MeshRendererImpl::GetMesh(IMesh** mesh)
 	{
-		return E_NOTIMPL;
+		if (mesh == nullptr)
+		{
+			return E_POINTER;
+		}
+		ID3D11Mesh* currentMesh{};
+		currentMesh = mesh_.load(std::memory_order::memory_order_acquire);
+		currentMesh->AddRef();
+		*mesh = currentMesh;
+		return S_OK;
 	}
 	STDMETHODIMP_(HRESULT __stdcall) MeshRendererImpl::GetMaterial(IMaterial** material)
 	{

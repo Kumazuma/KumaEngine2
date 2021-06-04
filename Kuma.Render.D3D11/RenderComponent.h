@@ -28,6 +28,8 @@ namespace KumaEngine::cpp
 
 		STDMETHOD(PrepareRender());
 		STDMETHOD(GetWorldTransform(DirectX::XMFLOAT4X4* out));
+		STDMETHOD(GetPreparedMesh(ID3D11Mesh** mesh));
+		STDMETHOD(GetPreparedMaterial(ID3D11Material** material));
 	private:
 		ComPtr<IWeakRef> gameObj_;
 		std::array<XMFLOAT4X4, 2> worldMatrices;

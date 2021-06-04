@@ -174,4 +174,30 @@ namespace KumaEngine::cpp
 		*out = worldMatrices[currentIndex];
 		return S_OK;
 	}
+	STDMETHODIMP_(HRESULT __stdcall) MeshRendererImpl::GetPreparedMesh(ID3D11Mesh** mesh)
+	{
+		if (mesh == nullptr)
+		{
+			return E_POINTER;
+		}
+		if (preparedMesh_ != nullptr)
+		{
+			preparedMesh_->AddRef();
+		}
+		*mesh = preparedMesh_;
+		return S_OK;
+	}
+	STDMETHODIMP_(HRESULT __stdcall) MeshRendererImpl::GetPreparedMaterial(ID3D11Material** material)
+	{
+		if (material == nullptr)
+		{
+			return E_POINTER;
+		}
+		if (preparedMaterial_ != nullptr)
+		{
+			preparedMaterial_->AddRef();
+		}
+		*material = preparedMaterial_;
+		return S_OK;
+	}
 }

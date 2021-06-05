@@ -159,6 +159,7 @@ DECLARE_INTERFACE_IID_(IKumaEngine_RenderModule, IKumaEngine_Entity, "874F3420-2
 	STDMETHOD(Update()) PURE;
 	STDMETHOD(CreateMeshRenderer(IKumaEngine_MeshRenderer** meshRenderer)) PURE;
 	STDMETHOD(CreateCamera(IKumaEngine_Camera** camera)) PURE;
+	STDMETHOD(CreateShaderFromFile(const wchar_t* fileName, const char* entryPoint, IKumaEngine_Shader** shader)) PURE;
 	STDMETHOD(LoadMeshFromFile(const wchar_t* meshId, const wchar_t* filePath)) PURE;
 	STDMETHOD(LoadMeshFromMemory(const wchar_t* meshId, const wchar_t* ext, const uint8_t* bytes, size_t byteLength)) PURE;
 	STDMETHOD(LoadTextureFromFile(const wchar_t* textureId, const wchar_t* filePath)) PURE;
@@ -230,7 +231,7 @@ DEFINE_GUID(IID_MESH ,
 
 MIDL_INTERFACE("24CDED12-2693-47C8-868E-64E83AED939E") IKumaEngine_Mesh: public IKumaEngine_Entity
 {
-	
+
 };
 
 // {6D631EA4-D201-4E97-967D-96E640E34D33}
@@ -240,16 +241,12 @@ DEFINE_GUID(IID_MATERIAL,
 MIDL_INTERFACE("24CDED12-2693-47C8-868E-64E83AED939E") IKumaEngine_Material: public IKumaEngine_Entity
 {
 	STDMETHOD(GetShader(IKumaEngine_Shader * *shader))PURE;
-	STDMETHOD(SetPropertyInt(const char* key, int32_t value)) PURE;
-	STDMETHOD(GetPropertyInt(const char* key, int32_t* value)) PURE;
-	STDMETHOD(SetPropertyFloat(const char* key, float value)) PURE;
-	STDMETHOD(GetPropertyFloat(const char* key, float* value)) PURE;
-	STDMETHOD(SetPropertyVector4(const char* key, const float* value)) PURE;
-	STDMETHOD(GetPropertyVector4(const char* key, float* value)) PURE;
-	STDMETHOD(SetPropertyMatrix(const char* key, const float* value)) PURE;
-	STDMETHOD(GetPropertyMatrix(const char* key, float* value)) PURE;
-	STDMETHOD(SetPropertyTexture(const char* key, IKumaEngine_Surface* value)) PURE;
-	STDMETHOD(GetPropertyTexture(const char* key, IKumaEngine_Surface** value)) PURE;
+	STDMETHOD(SetPropertyInt(const char* key, const int32_t* value, uint32_t size)) PURE;
+	STDMETHOD_(uint32_t, GetPropertyInt(const char* key, int32_t* value, uint32_t size)) PURE;
+	STDMETHOD(SetPropertyFloat(const char* key, const float* value, uint32_t size)) PURE;
+	STDMETHOD_(uint32_t, GetPropertyFloat(const char* key, float* value, uint32_t size)) PURE;
+	STDMETHOD(SetPropertyTexture(const char* key, IKumaEngine_Surface** value, uint32_t size)) PURE;
+	STDMETHOD_(uint32_t, GetPropertyTexture(const char* key, IKumaEngine_Surface** value, uint32_t size)) PURE;
 	STDMETHOD(GetIterator(REFIID itemType, IKumaEngine_EntityIterator** iterator)) PURE;
 };
 
@@ -257,9 +254,26 @@ MIDL_INTERFACE("24CDED12-2693-47C8-868E-64E83AED939E") IKumaEngine_Material: pub
 DEFINE_GUID(IID_SHADER ,
 	0x96a50abc, 0x71a9, 0x4523, 0x8b, 0x1b, 0xfd, 0xcb, 0xc8, 0x5d, 0x3e, 0x3d);
 
+
+enum class ShaderPropertyKind
+{
+	None,
+	Texture,
+	Float,
+	Int
+};
+
+struct KumaEngine_ShaderPropertyDesc
+{
+	char name[128];
+	ShaderPropertyKind kind;
+	uint32_t dimension[2];
+};
+
 MIDL_INTERFACE("96A50ABC-71A9-4523-8B1B-FDCBC85D3E3D") IKumaEngine_Shader: public IKumaEngine_Entity
 {
-
+	STDMETHOD_(uint32_t, GetPropertyCount()) PURE;
+	STDMETHOD(GetPropertyDesc(uint32_t index, KumaEngine_ShaderPropertyDesc* desc)) PURE;
 };
 
 namespace KumaEngine

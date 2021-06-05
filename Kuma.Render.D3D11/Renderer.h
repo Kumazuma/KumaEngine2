@@ -23,6 +23,8 @@ namespace KumaEngine::cpp
 		IFACEMETHODIMP Update();
 		IFACEMETHODIMP CreateMeshRenderer(IMeshRenderer** meshRenderer);
 		IFACEMETHODIMP CreateCamera(ICamera** camera);
+		IFACEMETHODIMP CreateShaderFromFile(const wchar_t* fileName, const char* entryPoint, IKumaEngine_Shader** shader);
+
 		IFACEMETHODIMP LoadMeshFromFile(const wchar_t* meshId, const wchar_t* filePath);
 		IFACEMETHODIMP LoadMeshFromMemory(const wchar_t* meshId, const wchar_t* ext, const uint8_t* bytes, size_t byteLength);
 		IFACEMETHODIMP LoadTextureFromFile(const wchar_t* textureId, const wchar_t* filePath);

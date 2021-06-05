@@ -30,7 +30,13 @@ public:
 		renderModule_->Initialize(frame->GetHWND(), desc);
 		renderModule_->CreateCamera(&cam_);
 		renderModule_->SetMainCamera(cam_);
-
+		KumaEngine::cpp::IShader* shader;
+		renderModule_->CreateShaderFromFile(L"./2D_GAME_PS.hlsl", "ps_main", &shader);
+		
+		if (shader != nullptr)
+		{
+			shader->Release();
+		}
 		timer_ = new wxTimer{ this };
 		this->Bind(wxEVT_TIMER, [this](wxTimerEvent& evt)
 			{

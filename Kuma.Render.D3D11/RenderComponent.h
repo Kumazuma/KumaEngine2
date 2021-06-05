@@ -1,5 +1,4 @@
 #pragma once
-
 #include"KumaEngine2.h"
 #include"helper.h"
 #include"Renderer.h"
@@ -35,7 +34,7 @@ namespace KumaEngine::cpp
 		std::array<XMFLOAT4X4, 2> worldMatrices;
 		std::atomic<ID3D11Mesh*> mesh_;
 		std::atomic<ID3D11Material*> material_;
-		IMesh* preparedMesh_;
+		ID3D11Mesh* preparedMesh_;
 		ID3D11Material* preparedMaterial_;
 		
 		int index_;

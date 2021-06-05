@@ -3,6 +3,7 @@
 #include"Camera.h"
 #include<functional>
 #include<array>
+#include "ForwardShader.h"
 namespace KumaEngine::cpp
 {
 	D3D11RenderModule::D3D11RenderModule():
@@ -209,6 +210,17 @@ namespace KumaEngine::cpp
 			return E_FAIL;
 		}
 		*camera = cam;
+		return S_OK;
+	}
+
+	IFACEMETHODIMP D3D11RenderModule::CreateShaderFromFile(const wchar_t* fileName, const char* entryPoint, IKumaEngine_Shader** shader)
+	{
+		if (shader == nullptr)
+		{
+			return E_POINTER;
+		}
+		auto* ptr{ new D3D11ForwardShader{device_.Get(), fileName, entryPoint} };
+		*shader = ptr;
 		return S_OK;
 	}
 

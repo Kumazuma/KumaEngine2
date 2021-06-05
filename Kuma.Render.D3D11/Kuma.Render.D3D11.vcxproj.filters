@@ -25,6 +25,12 @@
     <Filter Include="Mesh">
       <UniqueIdentifier>{33d362c1-1468-4e1c-b635-0401841b1882}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Material">
+      <UniqueIdentifier>{e02f4f0c-ba91-4320-9bdb-ffa24593cb2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{5e7b7bd8-5f61-482b-a253-fadbbf681db4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -54,6 +60,9 @@
     <ClInclude Include="Mesh.h">
       <Filter>Mesh</Filter>
     </ClInclude>
+    <ClInclude Include="ForwardShader.h">
+      <Filter>Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -73,6 +82,9 @@
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="ForwardShader.cpp">
+      <Filter>Shader</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

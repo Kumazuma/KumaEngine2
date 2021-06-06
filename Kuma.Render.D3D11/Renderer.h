@@ -24,7 +24,6 @@ namespace KumaEngine::cpp
 		IFACEMETHODIMP CreateMeshRenderer(IMeshRenderer** meshRenderer);
 		IFACEMETHODIMP CreateCamera(ICamera** camera);
 		IFACEMETHODIMP CreateShaderFromFile(const wchar_t* fileName, const char* entryPoint, IKumaEngine_Shader** shader);
-
 		IFACEMETHODIMP LoadMeshFromFile(const wchar_t* meshId, const wchar_t* filePath);
 		IFACEMETHODIMP LoadMeshFromMemory(const wchar_t* meshId, const wchar_t* ext, const uint8_t* bytes, size_t byteLength);
 		IFACEMETHODIMP LoadTextureFromFile(const wchar_t* textureId, const wchar_t* filePath);
@@ -90,6 +89,9 @@ namespace KumaEngine::cpp
 		0x95a887ed, 0x2543, 0x424d, 0xac, 0x9d, 0x28, 0xdd, 0x55, 0xa2, 0x9a, 0x3d);
 	MIDL_INTERFACE("95A887ED-2543-424D-AC9D-28DD55A29A3D") ID3D11Material: IMaterial
 	{
+		STDMETHOD(PrepareRender()) PURE;
+		STDMETHOD(GetPreparedShader(ID3D11Shader** shader)) PURE;
+		STDMETHOD(BindResources(ID3D11DeviceContext4* deviceContext)) PURE;
 
 	};
 
@@ -105,7 +107,14 @@ namespace KumaEngine::cpp
 
 	};
 
+	// {DE161C94-A594-44A1-A3CA-5A925A26FF53}
+	DEFINE_GUID(IID_D3D11_SURFACE ,
+		0xde161c94, 0xa594, 0x44a1, 0xa3, 0xca, 0x5a, 0x92, 0x5a, 0x26, 0xff, 0x53);
 
+	MIDL_INTERFACE("0CAD4CF4-6190-4F4F-93CC-10B5712267C8") ID3D11Surface: ISurface
+	{
+
+	};
 
 	// {01930C6F-E2C7-4233-95F2-749E24C18924}
 	DEFINE_GUID(IID_D3D11_RENDERTARGET_SURFACE ,

@@ -63,6 +63,9 @@
     <ClInclude Include="ForwardShader.h">
       <Filter>Shader</Filter>
     </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Material</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -85,6 +88,9 @@
     </ClCompile>
     <ClCompile Include="ForwardShader.cpp">
       <Filter>Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Material</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -14,7 +14,7 @@ KumaEngine::cpp::D3D11ForwardShader::D3D11ForwardShader(ID3D11Device5* device, s
 		path.data(),
 		nullptr,
 		nullptr,
-		entryName.data(), "ps_5_0", D3DCOMPILE_DEBUG, 0, &code, &msg);
+		entryName.data(), "ps_5_0", compileOption, 0, &code, &msg);
 	if (FAILED(hr))
 	{
 		if (msg == nullptr)

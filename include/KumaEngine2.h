@@ -240,7 +240,8 @@ DEFINE_GUID(IID_MATERIAL,
 
 MIDL_INTERFACE("24CDED12-2693-47C8-868E-64E83AED939E") IKumaEngine_Material: public IKumaEngine_Entity
 {
-	STDMETHOD(GetShader(IKumaEngine_Shader * *shader))PURE;
+	STDMETHOD(SetShader(IKumaEngine_Shader* shader))PURE;
+	STDMETHOD(GetShader(IKumaEngine_Shader **shader))PURE;
 	STDMETHOD(SetPropertyInt(const char* key, const int32_t* value, uint32_t size)) PURE;
 	STDMETHOD_(uint32_t, GetPropertyInt(const char* key, int32_t* value, uint32_t size)) PURE;
 	STDMETHOD(SetPropertyFloat(const char* key, const float* value, uint32_t size)) PURE;
@@ -253,7 +254,6 @@ MIDL_INTERFACE("24CDED12-2693-47C8-868E-64E83AED939E") IKumaEngine_Material: pub
 // {96A50ABC-71A9-4523-8B1B-FDCBC85D3E3D}
 DEFINE_GUID(IID_SHADER ,
 	0x96a50abc, 0x71a9, 0x4523, 0x8b, 0x1b, 0xfd, 0xcb, 0xc8, 0x5d, 0x3e, 0x3d);
-
 
 enum class ShaderPropertyKind
 {

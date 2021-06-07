@@ -109,7 +109,7 @@ KumaEngine::cpp::D3D11ForwardShader::D3D11ForwardShader(ID3D11Device5* device, s
 	}
 }
 
-KumaEngine::cpp::D3D11ForwardShader::D3D11ForwardShader(D3D11ForwardShader&& rhs) noexcept:
+KumaEngine::cpp::D3D11ForwardShader::D3D11ForwardShader(D3D11ForwardShader&& rhs) noexcept
 {
 }
 

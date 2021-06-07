@@ -25,7 +25,7 @@ namespace KumaEngine::cpp
 		STDMETHOD(GetMaterial(IMaterial** material));
 		STDMETHOD(SetMaterial(IMaterial* material));
 
-		STDMETHOD(PrepareRender());
+		STDMETHOD(PrepareRender(ID3D11Device5* device, ID3D11DeviceContext4* context));
 		STDMETHOD(GetWorldTransform(DirectX::XMFLOAT4X4* out));
 		STDMETHOD(GetPreparedMesh(ID3D11Mesh** mesh));
 		STDMETHOD(GetPreparedMaterial(ID3D11Material** material));

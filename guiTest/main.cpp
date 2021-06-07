@@ -1,6 +1,65 @@
 #include<wx/wxprec.h>
 #include<wx/wx.h>
 #include"KumaEngine2.h"
+
+class GameObject : public KumaEngine::cpp::IGameObject
+{
+	std::vector<KumaEngine::cpp::IComponent*> coms;
+	ULONG refCnt;
+	STDMETHOD(GetComponent(REFIID guid, void** component))
+	{
+		
+		for (auto* it : coms)
+		{
+			if (SUCCEEDED(it->QueryInterface(guid, component)))
+			{
+				return S_OK;
+			}
+		}
+		return E_FAIL;
+	}
+	STDMETHOD(AddComponent(KumaEngine::cpp::IComponent* component))
+	{
+		if (component == nullptr)
+		{
+			return E_POINTER;
+		}
+		coms.push_back(component);
+		return S_OK;
+	}
+	
+	STDMETHOD(GetWeakRef(IKumaEngine_WeakRef** ref))
+	{
+
+	}
+	
+	STDMETHOD(GetIterator(REFIID itemType, IKumaEngine_EntityIterator** iterator))
+	{
+
+	}
+
+	STDMETHOD(GetParent(IKumaEngine_WeakRef** parent))
+	{
+		return E_NOTIMPL;
+	}
+	STDMETHOD(SetParent(IKumaEngine_WeakRef* parent))
+	{
+		return S_OK;
+	}
+	STDMETHOD(Update())
+	{
+		return S_OK;
+	}
+	STDMETHOD(LateUpdate())
+	{
+		return S_OK;
+	}
+	STDMETHOD_(bool, IsDestroyed())
+	{
+		return false;
+	}
+};
+
 class App : public wxApp
 {
 public:

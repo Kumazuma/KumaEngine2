@@ -117,7 +117,7 @@ namespace KumaEngine::cpp
 		}
 		return S_OK;
 	}
-	STDMETHODIMP_(HRESULT __stdcall) MeshRendererImpl::PrepareRender()
+	STDMETHODIMP_(HRESULT __stdcall) MeshRendererImpl::PrepareRender(ID3D11Device5* device, ID3D11DeviceContext4* context)
 	{
 		if (gameObj_ == nullptr)
 		{
@@ -152,8 +152,12 @@ namespace KumaEngine::cpp
 		} while (SUCCEEDED(gameObject_->GetParent(&weakRef_)));
 		int volatile nextIndex{ index_ == 1 ? 0 : 1 };
 		XMStoreFloat4x4(&worldMatrices[nextIndex], mWorldTransform);
-		index_ = nextIndex;
 		ID3D11Material* material = material_.load(std::memory_order::memory_order_relaxed);
+		if (material != nullptr)
+		{
+			material->PrepareRender(device, context);
+		}
+
 		if (material != preparedMaterial_)
 		{
 			ID3D11Material* volatile oldMaterial = preparedMaterial_;
@@ -161,6 +165,7 @@ namespace KumaEngine::cpp
 			oldMaterial->Release();
 			material->AddRef();
 		}
+		index_ = nextIndex;
 
 		return S_OK;
 	}

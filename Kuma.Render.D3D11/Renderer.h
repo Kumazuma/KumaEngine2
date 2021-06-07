@@ -22,6 +22,7 @@ namespace KumaEngine::cpp
 		IFACEMETHODIMP GetWeakRef(IWeakRef** ref);
 		IFACEMETHODIMP Update();
 		IFACEMETHODIMP CreateMeshRenderer(IMeshRenderer** meshRenderer);
+		IFACEMETHODIMP CreateMaterial(IMaterial** material);
 		IFACEMETHODIMP CreateCamera(ICamera** camera);
 		IFACEMETHODIMP CreateShaderFromFile(const wchar_t* fileName, const char* entryPoint, IKumaEngine_Shader** shader);
 		IFACEMETHODIMP LoadMeshFromFile(const wchar_t* meshId, const wchar_t* filePath);
@@ -109,10 +110,7 @@ namespace KumaEngine::cpp
 		0x95a887ed, 0x2543, 0x424d, 0xac, 0x9d, 0x28, 0xdd, 0x55, 0xa2, 0x9a, 0x3d);
 	MIDL_INTERFACE("95A887ED-2543-424D-AC9D-28DD55A29A3D") ID3D11Material: IMaterial
 	{
-		STDMETHOD(PrepareRender()) PURE;
-		STDMETHOD(GetPreparedShader(ID3D11Shader** shader)) PURE;
-		STDMETHOD(BindResources(ID3D11DeviceContext4* deviceContext)) PURE;
-
+		STDMETHOD(PrepareRender(ID3D11Device5* device, ID3D11DeviceContext4* context)) PURE;
 	};
 
 	// {75BF8137-CD3F-4CBE-AF16-1CE7CAC19486}
@@ -120,7 +118,7 @@ namespace KumaEngine::cpp
 		0x75bf8137, 0xcd3f, 0x4cbe, 0xaf, 0x16, 0x1c, 0xe7, 0xca, 0xc1, 0x94, 0x86);
 	MIDL_INTERFACE("0CAD4CF4-6190-4F4F-93CC-10B5712267C8") ID3D11MeshRenderer: IMeshRenderer
 	{
-		STDMETHOD(PrepareRender()) PURE;
+		STDMETHOD(PrepareRender(ID3D11Device5* device, ID3D11DeviceContext4* context)) PURE;
 		STDMETHOD(GetWorldTransform(DirectX::XMFLOAT4X4* out)) PURE;
 		STDMETHOD(GetPreparedMesh(ID3D11Mesh** mesh)) PURE;
 		STDMETHOD(GetPreparedMaterial(ID3D11Material**material)) PURE;

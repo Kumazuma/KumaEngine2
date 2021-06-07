@@ -104,6 +104,7 @@ DEFINE_GUID(IID_GAMEOBJECT ,
 MIDL_INTERFACE("3D0E0216-86F5-4BE4-BBE5-E53C928C79E4") IKumaEngine_GameObject: public IKumaEngine_HasIterator
 {
 	STDMETHOD(GetComponent(REFIID guid, void** component)) PURE;
+	STDMETHOD(AddComponent(IKumaEngine_Component* component)) PURE;
 	STDMETHOD(GetParent(IKumaEngine_WeakRef** parent)) PURE;
 	STDMETHOD(SetParent(IKumaEngine_WeakRef* parent)) PURE;
 	STDMETHOD(Update()) PURE;
@@ -158,6 +159,7 @@ DECLARE_INTERFACE_IID_(IKumaEngine_RenderModule, IKumaEngine_Entity, "874F3420-2
 	/// <returns>성공하면 S_OK, 실패하면 다른 값을 반환한다.</returns>
 	STDMETHOD(Update()) PURE;
 	STDMETHOD(CreateMeshRenderer(IKumaEngine_MeshRenderer** meshRenderer)) PURE;
+	STDMETHOD(CreateMaterial(IKumaEngine_Material * *material))PURE;
 	STDMETHOD(CreateCamera(IKumaEngine_Camera** camera)) PURE;
 	STDMETHOD(CreateShaderFromFile(const wchar_t* fileName, const char* entryPoint, IKumaEngine_Shader** shader)) PURE;
 	STDMETHOD(LoadMeshFromFile(const wchar_t* meshId, const wchar_t* filePath)) PURE;

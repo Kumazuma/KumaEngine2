@@ -4,6 +4,8 @@
 #include<functional>
 #include<array>
 #include "ForwardShader.h"
+#include "Material.h"
+#include "RenderComponent.h"
 namespace KumaEngine::cpp
 {
 	D3D11RenderModule::D3D11RenderModule():
@@ -193,9 +195,30 @@ namespace KumaEngine::cpp
 		}
 		return S_OK;
 	}
-	IFACEMETHODIMP D3D11RenderModule::CreateMeshRenderer(IMeshRenderer** meshRenderer)
+	IFACEMETHODIMP D3D11RenderModule::CreateMeshRenderer(IMeshRenderer** ppMeshRenderer)
 	{
-		return E_NOTIMPL;
+		if (ppMeshRenderer == nullptr)
+		{
+			return E_POINTER;
+		}
+		ID3D11MeshRenderer* meshRenderer{ new(std::nothrow) MeshRenderer{} };
+		if (meshRenderer == nullptr)
+		{
+			return E_FAIL;
+		}
+		*ppMeshRenderer = meshRenderer;
+		return S_OK;
+	}
+
+	IFACEMETHODIMP D3D11RenderModule::CreateMaterial(IMaterial** ppMaterial)
+	{
+		if (ppMaterial == nullptr)
+		{
+			return E_POINTER;
+		}
+		ID3D11Material* material{ new(std::nothrow) D3D11Material{} };
+		*ppMaterial = material;
+		return S_OK;
 	}
 
 	STDMETHODIMP_(HRESULT __stdcall) D3D11RenderModule::CreateCamera(ICamera** camera)

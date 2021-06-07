@@ -122,12 +122,14 @@ namespace KumaEngine::cpp
             }
             ++it;
         }
+        auto device{ renderModule->GetDevice() };
+        auto context{ renderModule->GetDeviceContext() };
         //메테리얼 셰이더에 따라 포워드이냐, 디퍼드로 나눈다. 
         for (auto& it : renderers_)
         {
             ComPtr<IMaterial> material;
             ComPtr<IShader> shader;
-            if (FAILED(it->PrepareRender()))
+            if (FAILED(it->PrepareRender(device.Get(), context.Get())))
             {
                 continue;
             }

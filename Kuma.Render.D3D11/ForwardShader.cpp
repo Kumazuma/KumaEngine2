@@ -49,7 +49,7 @@ KumaEngine::cpp::D3D11ForwardShader::D3D11ForwardShader(ID3D11Device5* device, s
 			ID3D11ShaderReflectionConstantBuffer* buffer{ reflection->GetConstantBufferByName(inputDesc.Name) };
 			buffer->GetDesc(&bufferDesc);
 			const uint32_t variableCount{ bufferDesc.Variables };
-			samplerSlots_.emplace(registerIndex);
+			constanceBufferSlots_.emplace(registerIndex, bufferDesc.Size);
 			for (int j = 0; j < variableCount; ++j)
 			{
 				PropertyDescEx propertyDesc{};
@@ -79,7 +79,7 @@ KumaEngine::cpp::D3D11ForwardShader::D3D11ForwardShader(ID3D11Device5* device, s
 				propertyDesc.prop.variable.offset = variableDesc.StartOffset;
 				propertyDesc.prop.variable.size = variableDesc.Size;
 
-				properties_.push_back(propertyDesc);
+				properties.push_back(propertyDesc);
 			}
 		}
 			break;
@@ -95,7 +95,7 @@ KumaEngine::cpp::D3D11ForwardShader::D3D11ForwardShader(ID3D11Device5* device, s
 			propertyDesc.dimension[0] = typeDesc.Rows;
 			propertyDesc.dimension[1] = typeDesc.Columns;
 			strncpy(propertyDesc.name, inputDesc.Name, 128);
-			properties_.push_back(propertyDesc);
+			properties.push_back(propertyDesc);
 		}
 			break;
 		case D3D_SIT_SAMPLER:
@@ -120,7 +120,7 @@ STDMETHODIMP_(HRESULT __stdcall) KumaEngine::cpp::D3D11ForwardShader::GetWeakRef
 
 STDMETHODIMP_(uint32_t __stdcall) KumaEngine::cpp::D3D11ForwardShader::GetPropertyCount()
 {
-	return properties_.size();
+	return properties.size();
 }
 
 STDMETHODIMP_(HRESULT __stdcall) KumaEngine::cpp::D3D11ForwardShader::GetPropertyDesc(uint32_t index, KumaEngine_ShaderPropertyDesc* desc)
@@ -129,11 +129,35 @@ STDMETHODIMP_(HRESULT __stdcall) KumaEngine::cpp::D3D11ForwardShader::GetPropert
 	{
 		return E_POINTER;
 	}
-	if (properties_.size() <= index)
+	if (properties.size() <= index)
 	{
 		return E_INVALIDARG;
 	}
 
-	memcpy(&desc, &properties_[index], sizeof(KumaEngine_ShaderPropertyDesc));
+	memcpy(&desc, &properties[index], sizeof(KumaEngine_ShaderPropertyDesc));
 	return S_OK;
+}
+
+STDMETHODIMP_(HRESULT __stdcall) KumaEngine::cpp::D3D11ForwardShader::GetPropertyDescEx(uint32_t index, PropertyDescEx* desc)
+{
+	if (desc == nullptr)
+	{
+		return E_POINTER;
+	}
+	if (properties.size() <= index)
+	{
+		return E_INVALIDARG;
+	}
+
+	memcpy(&desc, &properties[index], sizeof(PropertyDescEx));
+	return S_OK;
+}
+
+STDMETHODIMP_(uint32_t __stdcall) KumaEngine::cpp::D3D11ForwardShader::GetConstantBufferSize(uint32_t index)
+{
+	if (const auto it = constanceBufferSlots_.find(index); it != constanceBufferSlots_.end())
+	{
+		return it->second;
+	}
+	return 0;
 }

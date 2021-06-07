@@ -53,6 +53,25 @@ namespace KumaEngine::cpp
 		INT currentBackBufferIndex;
 		std::thread renderThread_;
 	};
+	struct PropertyDescEx : public KumaEngine_ShaderPropertyDesc
+	{
+		/*
+		* extended information
+		*/
+		union
+		{
+			struct
+			{
+				uint32_t cbufferSlotIndex;
+				uint32_t offset;
+				uint32_t size;
+			} variable;
+			struct
+			{
+				uint32_t slotIndex;
+			} texture;
+		} prop;
+	};
 
 	// {0CAD4CF4-6190-4F4F-93CC-10B5712267C8}
 	DEFINE_GUID(IID_D3D11_RENDER_COM,
@@ -81,7 +100,8 @@ namespace KumaEngine::cpp
 		0xf74a446a, 0xe25e, 0x4a4a, 0x84, 0xdb, 0x61, 0x68, 0x92, 0xdc, 0xa6, 0xfb);
 	MIDL_INTERFACE("0CAD4CF4-6190-4F4F-93CC-10B5712267C8") ID3D11Shader: IShader
 	{
-
+		STDMETHOD(GetPropertyDescEx(uint32_t index, PropertyDescEx* desc)) PURE;
+		STDMETHOD_(uint32_t, GetConstantBufferSize(uint32_t index)) PURE;
 	};
 
 	// {95A887ED-2543-424D-AC9D-28DD55A29A3D}

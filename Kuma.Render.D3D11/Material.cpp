@@ -7,12 +7,22 @@ namespace KumaEngine::cpp
         return E_NOTIMPL;
     }
 
+    D3D11Material::D3D11Material():
+        preparedIdx_{ 0 },
+        commitIdx{ 0 }
+    {
+    }
+
     STDMETHODIMP_(HRESULT __stdcall) D3D11Material::PrepareRender()
     {
+        if (preparedIdx_ >= commitIdx)
+        {
+            return S_OK;
+        }
         return E_NOTIMPL;
     }
 
-    STDMETHODIMP_(HRESULT __stdcall) D3D11Material::SetShader(IKumaEngine_Shader* shader)
+    STDMETHODIMP_(HRESULT __stdcall) D3D11Material::SetShader(IShader* shader)
     {
         if (shader == nullptr)
         {
@@ -24,24 +34,43 @@ namespace KumaEngine::cpp
         {
             return E_INVALIDARG;
         }
-        D3D11MaterialContext* newContext = new D3D11MaterialContext{};
+        D3D11MaterialContext* newContext{ new D3D11MaterialContext{} };
         newContext->shader = cur;
         cur->Release();
-        D3D11MaterialContext* prev = shader_.exchange(newContext);
+        D3D11MaterialContext* prev = context_;
+        
+        uint32_t propertyCount{ cur->GetPropertyCount() };
+        for (uint32_t i = 0; i < propertyCount; ++i)
+        {
+            PropertyDescEx desc{};
+            cur->GetPropertyDescEx(i, &desc);
+            newContext->properties.emplace(desc.name, desc);
+            if (desc.kind == ShaderPropertyKind::Texture)
+            {
+                continue;
+            }
+            if (auto it = newContext->constantBuffers.find(desc.prop.variable.cbufferSlotIndex); it == newContext->constantBuffers.end())
+            {
+                newContext->constantBuffers[i].resize(cur->GetConstantBufferSize(i), 0);
+            }
+        }
+
+        context_ = newContext;
         if (prev != nullptr)
         {
             delete prev;
         }
+        ++commitIdx;
         return S_OK;
     }
 
-    STDMETHODIMP_(HRESULT __stdcall) D3D11Material::GetShader(IKumaEngine_Shader** shader)
+    STDMETHODIMP_(HRESULT __stdcall) D3D11Material::GetShader(IShader** shader)
     {
         if (shader == nullptr)
         {
             return E_POINTER;
         }
-        D3D11MaterialContext* context = shader_.load();
+        D3D11MaterialContext* context = context_;
         if (context == nullptr)
         {
             return E_FAIL;
@@ -53,6 +82,8 @@ namespace KumaEngine::cpp
 
     STDMETHODIMP_(HRESULT __stdcall) D3D11Material::SetPropertyInt(const char* key, const int32_t* value, uint32_t size)
     {
+        auto const& properies{ context_->properties };
+        
         return E_NOTIMPL;
     }
 

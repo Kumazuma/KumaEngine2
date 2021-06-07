@@ -16,12 +16,14 @@ namespace KumaEngine::cpp
 	struct D3D11MaterialContext
 	{
 		ComPtr<ID3D11Shader> shader;
-		std::unordered_map<unsigned int, std::vector<uint8_t>> constantBuffer;
+		std::unordered_map<std::string, PropertyDescEx> properties;
+		std::unordered_map<unsigned int, std::vector<uint8_t>> constantBuffers;
 		std::unordered_map<unsigned int, std::vector<ComPtr<ID3D11Surface>>> surfaces;
 	};
 	class D3D11Material : public ID3D11Material
 	{
 	public:
+		D3D11Material();
 		STDMETHOD(GetWeakRef(IWeakRef** ref));
 		STDMETHOD(PrepareRender());
 		STDMETHOD(SetShader(IShader* shader));
@@ -34,8 +36,10 @@ namespace KumaEngine::cpp
 		STDMETHOD_(uint32_t, GetPropertyTexture(const char* key, ISurface** value, uint32_t size)) ;
 		STDMETHOD(GetIterator(REFIID itemType, IKumaEngine_EntityIterator** iterator));
 	private:
-		std::atomic<D3D11MaterialContext*> shader_;
-		D3D11MaterialContext* preparedShader_;
-		
+		D3D11MaterialContext* context_;
+		ComPtr<ID3D11Shader> preparedShader_;
+		uint64_t preparedIdx_;
+		uint64_t commitIdx;
+		std::unordered_map<uint8_t, ComPtr<ID3D11Buffer>> constantBuffer_;
 	};
 }

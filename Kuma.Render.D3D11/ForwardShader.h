@@ -9,6 +9,7 @@
 #include<atomic>
 #include<string_view>
 #include<unordered_set>
+#include<unordered_map>
 namespace KumaEngine::cpp
 {
 	using namespace Microsoft::WRL;
@@ -28,25 +29,7 @@ namespace KumaEngine::cpp
 	private:
 		std::string exception_;
 	};
-	struct PropertyDescEx: public KumaEngine_ShaderPropertyDesc
-	{
-	/*
-	* extended information
-	*/
-		union
-		{
-			struct
-			{
-				uint32_t cbufferSlotIndex;
-				uint32_t offset;
-				uint32_t size;
-			} variable;
-			struct
-			{
-				uint32_t slotIndex;
-			} texture;
-		} prop;
-	};
+
 	class D3D11ForwardShader : public RefCountImpl<ID3D11Shader, IShader, IEntity, IUnknown>
 	{
 	public:
@@ -55,10 +38,13 @@ namespace KumaEngine::cpp
 		STDMETHOD(GetWeakRef(IKumaEngine_WeakRef** ref));
 		STDMETHOD_(uint32_t, GetPropertyCount());
 		STDMETHOD(GetPropertyDesc(uint32_t index, KumaEngine_ShaderPropertyDesc* desc));
+		STDMETHOD(GetPropertyDescEx(uint32_t index, PropertyDescEx* desc));
+		STDMETHOD_(uint32_t, GetConstantBufferSize(uint32_t index));
 	private:
-		std::vector<PropertyDescEx> properties_;
+		std::vector<PropertyDescEx> properties;
 		std::unordered_set<uint32_t> samplerSlots_;
-		std::unordered_set<uint32_t> constanceBufferSlots_;
+		std::unordered_map<uint32_t, uint32_t> constanceBufferSlots_;
+		
 		ComPtr<ID3D11PixelShader> shader_;
 	};
 }
